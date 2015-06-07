@@ -34,7 +34,6 @@ USE 185 for 5A
 #define CALIB_ADC 196
 
 
-
 enum{ACS_1, ACS_2, ACS_3, ACS_4};
 
 void TSVN_ACS712_Init(void);

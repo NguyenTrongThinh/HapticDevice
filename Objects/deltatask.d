@@ -17,6 +17,7 @@
 .\objects\deltatask.o: .\User\Delta.h
 .\objects\deltatask.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
 .\objects\deltatask.o: .\User\Jacobian.h
+.\objects\deltatask.o: .\User\AMES_Matrix.h
 .\objects\deltatask.o: .\User\Hardware.h
 .\objects\deltatask.o: .\System\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_gpio.h
 .\objects\deltatask.o: .\System\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\stm32f10x.h

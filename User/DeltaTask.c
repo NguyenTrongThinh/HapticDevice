@@ -172,7 +172,6 @@ void PID_TASK(void  *pvParameters)
 {
 	portBASE_TYPE xStatus;
 	xMomentData ReadValue;
-	unsigned char i;
 	float CurentValue_MOTOR[3];
 	float SetPoint_MOTOR[3] = {0, 0, 0};
 	long PWM_MOTOR[3] = {0, 0, 0}; 
@@ -205,6 +204,7 @@ void PID_TASK(void  *pvParameters)
 		vTaskDelay(100);
 	}
 }
+
 void LED_TASK(void  *pvParameters)
 {
 	while(1)

@@ -17,6 +17,7 @@
 .\objects\main.o: .\User\Delta.h
 .\objects\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
 .\objects\main.o: .\User\Jacobian.h
+.\objects\main.o: .\User\AMES_Matrix.h
 .\objects\main.o: .\User\Hardware.h
 .\objects\main.o: .\System\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_gpio.h
 .\objects\main.o: .\System\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\stm32f10x.h

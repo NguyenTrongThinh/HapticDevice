@@ -419,11 +419,6 @@
               <FilePath>.\User\DeltaTask.c</FilePath>
             </File>
             <File>
-              <FileName>stm32f10x_it.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\User\stm32f10x_it.c</FilePath>
-            </File>
-            <File>
               <FileName>Delta.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\User\Delta.c</FilePath>
@@ -437,6 +432,11 @@
               <FileName>Jacobian.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\User\Jacobian.c</FilePath>
+            </File>
+            <File>
+              <FileName>AMES_Matrix.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\AMES_Matrix.c</FilePath>
             </File>
           </Files>
         </Group>

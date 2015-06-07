@@ -1,10 +1,10 @@
 --cpu Cortex-M3
 ".\objects\main.o"
 ".\objects\deltatask.o"
-".\objects\stm32f10x_it.o"
 ".\objects\delta.o"
 ".\objects\hardware.o"
 ".\objects\jacobian.o"
+".\objects\ames_matrix.o"
 ".\objects\list.o"
 ".\objects\queue.o"
 ".\objects\tasks.o"

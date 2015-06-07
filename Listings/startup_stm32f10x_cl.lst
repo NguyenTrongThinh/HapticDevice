@@ -554,11 +554,11 @@ ARM Macro Assembler    Page 9
               00000000 
               00000000 
 Command Line: --debug --xref --cpu=Cortex-M3 --apcs=interwork --depend=.\object
-s\startup_stm32f10x_cl.d -o.\objects\startup_stm32f10x_cl.o -ID:\ARM\TSVN_DRIVE
-R\RTE -IC:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.0.2\Device\Include -IC:\Keil_v
-5\ARM\CMSIS\Include --predefine="__MICROLIB SETA 1" --predefine="STM32F10X_CL S
-ETA 1" --list=.\listings\startup_stm32f10x_cl.lst System\Libraries\CMSIS\CM3\De
-viceSupport\ST\STM32F10x\startup\arm\startup_stm32f10x_cl.s
+s\startup_stm32f10x_cl.d -o.\objects\startup_stm32f10x_cl.o -ID:\ARM\HapticForc
+eFeedback\RTE -IC:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.0.2\Device\Include -IC
+:\Keil_v5\ARM\CMSIS\Include --predefine="__MICROLIB SETA 1" --predefine="STM32F
+10X_CL SETA 1" --list=.\listings\startup_stm32f10x_cl.lst System\Libraries\CMSI
+S\CM3\DeviceSupport\ST\STM32F10x\startup\arm\startup_stm32f10x_cl.s
 
 
 
