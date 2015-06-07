@@ -1,0 +1,11 @@
+.\objects\heap_2.o: System\FreeRTOSV6.1.0\portable\MemMang\heap_2.c
+.\objects\heap_2.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\heap_2.o: .\System\FreeRTOSV6.1.0\include\FreeRTOS.h
+.\objects\heap_2.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\objects\heap_2.o: .\System\FreeRTOSV6.1.0\include\projdefs.h
+.\objects\heap_2.o: .\User\FreeRTOSConfig.h
+.\objects\heap_2.o: .\System\FreeRTOSV6.1.0\include\portable.h
+.\objects\heap_2.o: .\System\FreeRTOSV6.1.0\portable\RVDS\ARM_CM3\portmacro.h
+.\objects\heap_2.o: .\System\FreeRTOSV6.1.0\include\mpu_wrappers.h
+.\objects\heap_2.o: .\System\FreeRTOSV6.1.0\include\task.h
+.\objects\heap_2.o: .\System\FreeRTOSV6.1.0\include\list.h

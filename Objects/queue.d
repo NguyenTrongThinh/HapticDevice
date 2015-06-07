@@ -1,0 +1,13 @@
+.\objects\queue.o: System\FreeRTOSV6.1.0\queue.c
+.\objects\queue.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\queue.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\queue.o: .\System\FreeRTOSV6.1.0\include\FreeRTOS.h
+.\objects\queue.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\objects\queue.o: .\System\FreeRTOSV6.1.0\include\projdefs.h
+.\objects\queue.o: .\User\FreeRTOSConfig.h
+.\objects\queue.o: .\System\FreeRTOSV6.1.0\include\portable.h
+.\objects\queue.o: .\System\FreeRTOSV6.1.0\portable\RVDS\ARM_CM3\portmacro.h
+.\objects\queue.o: .\System\FreeRTOSV6.1.0\include\mpu_wrappers.h
+.\objects\queue.o: .\System\FreeRTOSV6.1.0\include\task.h
+.\objects\queue.o: .\System\FreeRTOSV6.1.0\include\list.h
+.\objects\queue.o: .\System\FreeRTOSV6.1.0\include\croutine.h
