@@ -1,18 +1,12 @@
-;#<FEEDBACK># ARM Linker, 5050041: Last Updated: Sun Apr 12 09:51:01 2015
+;#<FEEDBACK># ARM Linker, 5050041: Last Updated: Thu Jun 11 14:20:28 2015
 ;VERSION 0.2
 ;FILE ames_acs712.o
 TSVN_ACS712_Read <= USED 0
 TSVN_ACS712_Read_ADC <= USED 0
 __DMA_Init <= USED 0
-;FILE ames_button.o
-TSVN_BUT_Init <= USED 0
 ;FILE ames_can.o
 TSVN_CAN_Deinit <= USED 0
 ;FILE ames_clock.o
-;FILE ames_eeprom.o
-TSVN_EEPROM_Init <= USED 0
-TSVN_EEPROM_Read_Byte <= USED 0
-TSVN_EEPROM_Write_Byte <= USED 0
 ;FILE ames_fir.o
 AMES_Filter <= USED 0
 FIR_CollectData <= USED 0
@@ -20,6 +14,9 @@ FIR_Filter <= USED 0
 Median_Filter <= USED 0
 ;FILE ames_led.o
 TSVN_Led_Deinit <= USED 0
+TSVN_Led_Off <= USED 0
+TSVN_Led_On <= USED 0
+;FILE ames_matrix.o
 ;FILE ames_pid.o
 PID_Calculate <= USED 0
 PID_Free_Mem <= USED 0
@@ -34,7 +31,7 @@ TSVN_QEI_TIM2_Value <= USED 0
 TSVN_QEI_TIM3_Deinit <= USED 0
 TSVN_QEI_TIM4_Deinit <= USED 0
 ;FILE ames_timer.o
-TSVN_TIM7_Init <= USED 0
+TSVN_TIM6_Init <= USED 0
 ;FILE ames_usart.o
 TSVN_Find <= USED 0
 TSVN_USART_Deinit <= USED 0
@@ -53,6 +50,7 @@ Delta_CalcInverse <= USED 0
 ;FILE heap_2.o
 vPortInitialiseBlocks <= USED 0
 xPortGetFreeHeapSize <= USED 0
+;FILE jacobian.o
 ;FILE list.o
 ;FILE main.o
 ;FILE misc.o
@@ -180,14 +178,12 @@ I2C_SoftwareResetCmd <= USED 0
 I2C_StretchClockCmd <= USED 0
 I2C_StructInit <= USED 0
 I2C_TransmitPEC <= USED 0
-;FILE stm32f10x_it.o
 ;FILE stm32f10x_rcc.o
 RCC_AHBPeriphResetCmd <= USED 0
 RCC_APB2PeriphResetCmd <= USED 0
 RCC_BackupResetCmd <= USED 0
 RCC_ClearFlag <= USED 0
 RCC_ClearITPendingBit <= USED 0
-RCC_GetFlagStatus <= USED 0
 RCC_GetITStatus <= USED 0
 RCC_GetSYSCLKSource <= USED 0
 RCC_I2S2CLKConfig <= USED 0

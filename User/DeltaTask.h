@@ -20,11 +20,9 @@
 #include <AMES_ACS712.h>
 
 #define UART_TASK_STACK_SIZE		(configMINIMAL_STACK_SIZE)
-#define PID_TASK_STACK_SIZE			(configMINIMAL_STACK_SIZE + 128)
-#define ENCODER_TASK_STACK_SIZE	(configMINIMAL_STACK_SIZE + 128)
+#define ENCODER_TASK_STACK_SIZE	(configMINIMAL_STACK_SIZE + 256)
 
 #define UART_TASK_PRIORITY			(tskIDLE_PRIORITY + 0)
-#define PID_TASK_PRIORITY				(tskIDLE_PRIORITY + 1)
 #define ENCODER_TASK_PRIORITY		(tskIDLE_PRIORITY + 1)
 
 #define CAN_MASTER_STD_ID 			0x00
@@ -50,5 +48,4 @@ unsigned char Application_Init(void);
 void Application_Run(void);
 void ENCODER_TASK(void *pvParameters);
 void UART_TASK(void *pvParameters);
-void PID_TASK(void  *pvParameters);
 

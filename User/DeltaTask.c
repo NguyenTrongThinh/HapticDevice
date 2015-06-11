@@ -6,7 +6,6 @@
 #define CAN_DATA_LENGTH		6
 
 xTaskHandle	UART_TASK_HANDLER;
-xTaskHandle	PID_TASK_HANDLER;
 xTaskHandle	ENCODER_TASK_HANDLER;
 
 xQueueHandle 	RxQueue;
@@ -15,8 +14,6 @@ xQueueHandle  CanRxQueue;
 
 
 xSemaphoreHandle UART_xCountingSemaphore;
-xSemaphoreHandle PID_xCountingSemaphore;
-xSemaphoreHandle CANRx_xCountingSemaphore;
 
 enum  {MOTOR1 = 0x00, MOTOR2, MOTOR3};
 enum  {RESERVE, FORWARD};
@@ -39,14 +36,14 @@ unsigned char Application_Init(void)
 	TSVN_PWM_TIM5_Start();
 	
 	DIR_Init();
-
+	
 	PID_Mem_Create(3);
 	PID_WindUp_Init(MOTOR1, PWM_Max_Value);
 	PID_WindUp_Init(MOTOR2, PWM_Max_Value);
 	PID_WindUp_Init(MOTOR3, PWM_Max_Value);
-	PID_Init(MOTOR1, 0.5, 0, 0);
-	PID_Init(MOTOR2, 0.5, 0, 0);
-	PID_Init(MOTOR3, 0.5, 0, 0);
+	PID_Init(MOTOR1, 1, 0, 0);
+	PID_Init(MOTOR2, 1, 0, 0);
+	PID_Init(MOTOR3, 1, 0, 0);
 	
 	TSVN_USART_Init();
 	TSVN_CAN_Init();
@@ -54,18 +51,13 @@ unsigned char Application_Init(void)
 	TSVN_QEI_TIM1_Init(400);
 	TSVN_QEI_TIM3_Init(400);
 	TSVN_QEI_TIM4_Init(400);
-	
 	RxQueue  = xQueueCreate(50, sizeof(xData));
 	CanRxQueue  = xQueueCreate(100, sizeof(CanRxMsg));
 	PidQueue = xQueueCreate(100, sizeof(xMomentData));
 	UART_xCountingSemaphore = xSemaphoreCreateCounting(50, 0);
-	PID_xCountingSemaphore = xSemaphoreCreateCounting(100, 0);
-	CANRx_xCountingSemaphore = xSemaphoreCreateCounting(100, 0);
 	
 	if (CanRxQueue != NULL && PidQueue != NULL
-		&& RxQueue != NULL && UART_xCountingSemaphore != NULL 
-	  && PID_xCountingSemaphore != NULL
-		&& CANRx_xCountingSemaphore != NULL)		
+		&& RxQueue != NULL && UART_xCountingSemaphore != NULL )		
 			return SUCCESS;
 	else
 		return ERROR;
@@ -73,7 +65,6 @@ unsigned char Application_Init(void)
 void Application_Run(void)
 {
 	xTaskCreate(UART_TASK,  		(signed char*)  "UART", UART_TASK_STACK_SIZE, NULL, UART_TASK_PRIORITY, &UART_TASK_HANDLER);
-	xTaskCreate(PID_TASK,   		(signed char*) 	"PID", PID_TASK_STACK_SIZE, NULL, PID_TASK_PRIORITY, &PID_TASK_HANDLER);	
 	xTaskCreate(ENCODER_TASK,   (signed char*) 	"ENCODER", ENCODER_TASK_STACK_SIZE, NULL, ENCODER_TASK_PRIORITY, &ENCODER_TASK_HANDLER);	
 	vTaskStartScheduler();
 }
@@ -121,9 +112,9 @@ void ENCODER_TASK(void *pvParameters)
 		Theta[2] = ((float)TSVN_QEI_TIM3_Value()*0.9)/7.0;		
 		Status = (char)Delta_CalcForward(Theta[0], Theta[1], Theta[2], &Cordinate[0], &Cordinate[1], &Cordinate[2]);
 		MomentCalculate(Theta, Phi, Cordinate, F, &Moment);
-		SendMoment.Moment_MOTOR1 = Moment[0];
-		SendMoment.Moment_MOTOR2 = Moment[1];
-		SendMoment.Moment_MOTOR3 = Moment[2];
+		SendMoment.Moment_MOTOR1 = Moment[0]*1000.0;
+		SendMoment.Moment_MOTOR2 = Moment[1]*1000.0;
+		SendMoment.Moment_MOTOR3 = Moment[2]*1000.0;
 		xQueueSendToBack(PidQueue, &SendMoment, 1);
 		if (Status == 0)
 		{		
@@ -164,35 +155,6 @@ void ENCODER_TASK(void *pvParameters)
 			}
 			TSVN_Led_Toggle(LED_D5);
 			vTaskDelay(100);
-	}
-}
-
-void PID_TASK(void  *pvParameters)
-{
-	portBASE_TYPE xStatus;
-	xMomentData ReadValue;
-	float CurentValue_MOTOR[3];
-	float SetPoint_MOTOR[3] = {0, 0, 0};
-  long PWM_MOTOR[3] = {0, 0, 0}; 
-		
-	while(1)
-	{
-		while(FIR_CollectData(SEN_MOTOR1, TSVN_ACS712_Read(ACS_1)) != DONE);
-		CurentValue_MOTOR[MOTOR1] = AMES_Filter(SEN_MOTOR1);
-		while(FIR_CollectData(SEN_MOTOR2 ,TSVN_ACS712_Read(ACS_2)) != DONE);
-		CurentValue_MOTOR[MOTOR2] = AMES_Filter(SEN_MOTOR2);
-		while(FIR_CollectData(SEN_MOTOR3,TSVN_ACS712_Read(ACS_3))  != DONE);
-		CurentValue_MOTOR[MOTOR3] = AMES_Filter(SEN_MOTOR3);
-		if (uxQueueMessagesWaiting(PidQueue) != NULL)
-		{
-			xStatus = xQueueReceive(PidQueue, &ReadValue, 0);
-			if (xStatus == pdPASS)
-			{
-				 //printf("%0.5f,\n", CurentValue_MOTOR[MOTOR1]);
-				 printf("%0.5f,\t%0.5f,\t%0.5f\n", ReadValue.Moment_MOTOR1, ReadValue.Moment_MOTOR2, ReadValue.Moment_MOTOR3);
-			}
-		}
-		vTaskDelay(20);
 	}
 }
 

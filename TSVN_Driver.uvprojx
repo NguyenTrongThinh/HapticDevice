@@ -518,6 +518,11 @@
               <FileType>1</FileType>
               <FilePath>.\Drivers\AMES_FIR.c</FilePath>
             </File>
+            <File>
+              <FileName>AMES_TIMER.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Drivers\AMES_TIMER.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
