@@ -5,7 +5,6 @@
 #define MOTOR3_PWM				PWM_CHANNEL_4
 #define CAN_DATA_LENGTH		6
 
-xTaskHandle LED_TASK_HANDLER;
 xTaskHandle	UART_TASK_HANDLER;
 xTaskHandle	PID_TASK_HANDLER;
 xTaskHandle	ENCODER_TASK_HANDLER;
@@ -36,6 +35,7 @@ unsigned char Application_Init(void)
 	TSVN_PWM_TIM5_Set_Duty(0, MOTOR1_PWM);
 	TSVN_PWM_TIM5_Set_Duty(0, MOTOR2_PWM);
 	TSVN_PWM_TIM5_Set_Duty(0, MOTOR3_PWM);
+	
 	TSVN_PWM_TIM5_Start();
 	
 	DIR_Init();
@@ -44,9 +44,9 @@ unsigned char Application_Init(void)
 	PID_WindUp_Init(MOTOR1, PWM_Max_Value);
 	PID_WindUp_Init(MOTOR2, PWM_Max_Value);
 	PID_WindUp_Init(MOTOR3, PWM_Max_Value);
-	PID_Init(MOTOR1, 0, 0, 0);
-	PID_Init(MOTOR2, 0, 0, 0);
-	PID_Init(MOTOR3, 0, 0, 0);
+	PID_Init(MOTOR1, 0.5, 0, 0);
+	PID_Init(MOTOR2, 0.5, 0, 0);
+	PID_Init(MOTOR3, 0.5, 0, 0);
 	
 	TSVN_USART_Init();
 	TSVN_CAN_Init();
@@ -55,13 +55,13 @@ unsigned char Application_Init(void)
 	TSVN_QEI_TIM3_Init(400);
 	TSVN_QEI_TIM4_Init(400);
 	
-	RxQueue  = xQueueCreate(100, sizeof(xData));
+	RxQueue  = xQueueCreate(50, sizeof(xData));
 	CanRxQueue  = xQueueCreate(100, sizeof(CanRxMsg));
 	PidQueue = xQueueCreate(100, sizeof(xMomentData));
-	UART_xCountingSemaphore = xSemaphoreCreateCounting(100, 0);
+	UART_xCountingSemaphore = xSemaphoreCreateCounting(50, 0);
 	PID_xCountingSemaphore = xSemaphoreCreateCounting(100, 0);
 	CANRx_xCountingSemaphore = xSemaphoreCreateCounting(100, 0);
-
+	
 	if (CanRxQueue != NULL && PidQueue != NULL
 		&& RxQueue != NULL && UART_xCountingSemaphore != NULL 
 	  && PID_xCountingSemaphore != NULL
@@ -74,7 +74,6 @@ void Application_Run(void)
 {
 	xTaskCreate(UART_TASK,  		(signed char*)  "UART", UART_TASK_STACK_SIZE, NULL, UART_TASK_PRIORITY, &UART_TASK_HANDLER);
 	xTaskCreate(PID_TASK,   		(signed char*) 	"PID", PID_TASK_STACK_SIZE, NULL, PID_TASK_PRIORITY, &PID_TASK_HANDLER);	
-	xTaskCreate(LED_TASK,   		(signed char*) 	"LED", LED_TASK_STACK_SIZE, NULL, LED_TASK_PRIORITY, &LED_TASK_HANDLER);
 	xTaskCreate(ENCODER_TASK,   (signed char*) 	"ENCODER", ENCODER_TASK_STACK_SIZE, NULL, ENCODER_TASK_PRIORITY, &ENCODER_TASK_HANDLER);	
 	vTaskStartScheduler();
 }
@@ -82,7 +81,7 @@ void ENCODER_TASK(void *pvParameters)
 {
 	float Theta[3];
 	float Phi[3];
-	float F[3] = {0.0, 0.0, 15.0};
+	float F[3] = {0.0, 15.0, 0.0};
 	float Cordinate[3];
 	float Moment[3];
 	char Status = 0;
@@ -164,7 +163,7 @@ void ENCODER_TASK(void *pvParameters)
 				CAN_Transmit(CAN1, &CanSendData);
 			}
 			TSVN_Led_Toggle(LED_D5);
-			vTaskDelay(50);
+			vTaskDelay(100);
 	}
 }
 
@@ -174,16 +173,8 @@ void PID_TASK(void  *pvParameters)
 	xMomentData ReadValue;
 	float CurentValue_MOTOR[3];
 	float SetPoint_MOTOR[3] = {0, 0, 0};
-	long PWM_MOTOR[3] = {0, 0, 0}; 
-	
-	PID_Init(MOTOR1, 1, 0, 0.0001);
-	PID_Init(MOTOR2, 1, 0, 0.0001);
-	PID_Init(MOTOR3, 1, 0, 0.0001);
-	
-	TSVN_PWM_TIM5_Set_Duty(0, MOTOR3_PWM);
-	TSVN_PWM_TIM5_Set_Duty(0, MOTOR2_PWM);
-	TSVN_PWM_TIM5_Set_Duty(0, MOTOR1_PWM);
-	
+  long PWM_MOTOR[3] = {0, 0, 0}; 
+		
 	while(1)
 	{
 		while(FIR_CollectData(SEN_MOTOR1, TSVN_ACS712_Read(ACS_1)) != DONE);
@@ -198,32 +189,19 @@ void PID_TASK(void  *pvParameters)
 			if (xStatus == pdPASS)
 			{
 				 //printf("%0.5f,\n", CurentValue_MOTOR[MOTOR1]);
-				 //printf("%0.5f,\t%0.5f,\t%0.5f\n", ReadValue.Moment_MOTOR1, ReadValue.Moment_MOTOR2, ReadValue.Moment_MOTOR3);
+				 printf("%0.5f,\t%0.5f,\t%0.5f\n", ReadValue.Moment_MOTOR1, ReadValue.Moment_MOTOR2, ReadValue.Moment_MOTOR3);
 			}
 		}
-		vTaskDelay(100);
-	}
-}
-
-void LED_TASK(void  *pvParameters)
-{
-	while(1)
-	{
-		TSVN_Led_On(LED_D4);
 		vTaskDelay(20);
-		TSVN_Led_Off(LED_D4);
-		vTaskDelay(500);
 	}
 }
 
 void UART_TASK(void *pvParameters)
 {
 	xData ReadValue;
-	xMomentData SendValue;
 	portBASE_TYPE xStatus;
 	char *Cmd;
 	double Temp;
-	static float Kp = 0, Ki = 0, Kd = 0;
 	while(1)
 	{
 		xSemaphoreTake(UART_xCountingSemaphore, portMAX_DELAY);
@@ -237,53 +215,8 @@ void UART_TASK(void *pvParameters)
 					if (TSVN_USART_Create_Frame(ReadValue.Value) == End)
 					{		
 							Cmd = TSVN_Get_Parameters(1, TSVN_USART_Get_Frame());
-							if (!strcmp(Cmd, "PID1"))
-							{
-								Cmd = TSVN_Get_Parameters(2, TSVN_USART_Get_Frame());
-								Kp = atof(Cmd);
-								Cmd = TSVN_Get_Parameters(3, TSVN_USART_Get_Frame());
-								Ki = atof(Cmd);
-								Cmd = TSVN_Get_Parameters(4, TSVN_USART_Get_Frame());
-								Kd = atof(Cmd);
-								PID_Init(MOTOR1, Kp, Ki, Kd);
-								printf("PID1 change to: %0.2f\t%0.2f\t%0.2f\n", Kp, Ki, Kd);
-							}
-							else if (!strcmp(Cmd, "PID2"))
-							{
-								Cmd = TSVN_Get_Parameters(2, TSVN_USART_Get_Frame());
-								Kp = atof(Cmd);
-								Cmd = TSVN_Get_Parameters(3, TSVN_USART_Get_Frame());
-								Ki = atof(Cmd);
-								Cmd = TSVN_Get_Parameters(4, TSVN_USART_Get_Frame());
-								Kd = atof(Cmd);
-								PID_Init(MOTOR2, Kp, Ki, Kd);
-								printf("PID2 change to: %0.2f\t%0.2f\t%0.2f\n", Kp, Ki, Kd);
-							}
-							else if (!strcmp(Cmd, "PID3"))
-							{
-								Cmd = TSVN_Get_Parameters(2, TSVN_USART_Get_Frame());
-								Kp = atof(Cmd);
-								Cmd = TSVN_Get_Parameters(3, TSVN_USART_Get_Frame());
-								Ki = atof(Cmd);
-								Cmd = TSVN_Get_Parameters(4, TSVN_USART_Get_Frame());
-								Kd = atof(Cmd);
-								PID_Init(MOTOR1, Kp, Ki, Kd);
-								printf("PID3 change to: %0.2f\t%0.2f\t%0.2f\n", Kp, Ki, Kd);
-							}
-							else if (!strcmp(Cmd, "SETP"))
-							{
-								Cmd = TSVN_Get_Parameters(2, TSVN_USART_Get_Frame());
-								Temp = atof(Cmd);
-								SendValue.Moment_MOTOR1 = (float)Temp;
-								Cmd = TSVN_Get_Parameters(3, TSVN_USART_Get_Frame());
-								Temp = atof(Cmd);
-								SendValue.Moment_MOTOR2 = Temp;
-								Cmd = TSVN_Get_Parameters(4, TSVN_USART_Get_Frame());
-								Temp = atof(Cmd);
-								SendValue.Moment_MOTOR3 = Temp;
-								printf("Moment Set: %0.2f\t%0.2f\t%0.2f\n", SendValue.Moment_MOTOR1, SendValue.Moment_MOTOR2, SendValue.Moment_MOTOR3);
-							}
-							else if (!strcmp(Cmd, "PWM1"))
+							
+							if (!strcmp(Cmd, "PWM1"))
 							{
 								Cmd = TSVN_Get_Parameters(2, TSVN_USART_Get_Frame());
 								Temp = atol(Cmd);
@@ -328,18 +261,6 @@ void UART_TASK(void *pvParameters)
 							else if (!strcmp(Cmd, "Who"))
 								printf("Delta\n");
 					}		
-				}
-				else if (ReadValue.ID == SEN1)
-					{
-						printf("Dong Motor 1: %0.5f\t", ReadValue.Value);
-					}
-				else if (ReadValue.ID == SEN2)
-				{
-					printf("Dong Motor 2: %0.5f\t", ReadValue.Value);
-				}
-				else if (ReadValue.ID == SEN3)
-				{
-					printf("Dong Motor 3: %0.5f\n", ReadValue.Value);
 				}
 			}
 		}

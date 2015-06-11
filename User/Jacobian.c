@@ -45,7 +45,6 @@ char MomentCalculate(float Theta1[3], float Phi[3], float P[3], float F[3], floa
 		Phi[i] = Phi[i]*(float)Pi/180.0;
 		Theta[0][i] = Theta[0][i]*(float)Pi/180.0;
 	}
-
 	for (i = 0; i<3; i++)
 	{
 		Jp[0][i] =  sin(Theta[2][i])*cos(Theta[1][i] + Theta[0][i])*cos(Phi[i]) + cos(Theta[2][i])*sin(Phi[i]);
@@ -69,12 +68,6 @@ char MomentCalculate(float Theta1[3], float Phi[3], float P[3], float F[3], floa
 		(*Moment)[1] = JT[1][0]*F[0] + JT[1][1]*F[1] + JT[1][2]*F[2];
 		(*Moment)[2] = JT[2][0]*F[0] + JT[2][1]*F[1] + JT[2][2]*F[2];
 		ErrorCode = MAVAILABLE;
-	}
-	else
-	{
-		(*Moment)[0] = 0;
-		(*Moment)[1] = 0;
-		(*Moment)[2] = 0;
 	}
 	return ErrorCode;
 }

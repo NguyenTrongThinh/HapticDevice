@@ -6,7 +6,7 @@ float Det(float Jp[3][3])
 	       + (Jp[0][2])*(Jp[1][0])*(Jp[2][1]) - (Jp[0][2])*(Jp[1][1])*(Jp[2][0])
 	       - (Jp[0][1])*(Jp[1][0])*(Jp[2][2]) - (Jp[0][0])*(Jp[1][2])*(Jp[2][1]);
 }
-float Glosbe(float Jp[3][3], unsigned char row, unsigned char col)
+static float Glosbe(float Jp[3][3], unsigned char row, unsigned char col)
 {
 	unsigned char i, j;
 	unsigned char k = 0;

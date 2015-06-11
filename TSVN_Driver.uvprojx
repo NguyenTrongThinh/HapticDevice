@@ -474,11 +474,6 @@
           <GroupName>BoardSupport</GroupName>
           <Files>
             <File>
-              <FileName>AMES_BUTTON.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Drivers\AMES_BUTTON.c</FilePath>
-            </File>
-            <File>
               <FileName>AMES_CLOCK.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Drivers\AMES_CLOCK.c</FilePath>
@@ -507,16 +502,6 @@
               <FileName>AMES_PID.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Drivers\AMES_PID.c</FilePath>
-            </File>
-            <File>
-              <FileName>AMES_TIMER.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Drivers\AMES_TIMER.c</FilePath>
-            </File>
-            <File>
-              <FileName>AMES_EEPROM.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Drivers\AMES_EEPROM.c</FilePath>
             </File>
             <File>
               <FileName>AMES_CAN.c</FileName>
