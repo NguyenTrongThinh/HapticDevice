@@ -10,11 +10,11 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define MAX_INPUT_LEN   80
+#define MAX_INPUT_LEN   100
 #define MAX_FLT_LEN     63
 #define BUFFER_LEN      (MAX_FLT_LEN - 1 + MAX_INPUT_LEN)
 #define FILTER_LEN  		63
-#define NUM_SAMPLES   	100
+#define NUM_SAMPLES   	80
 #define NUM_CHANNEL			3
 
 typedef enum

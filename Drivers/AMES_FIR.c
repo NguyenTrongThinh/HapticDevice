@@ -28,8 +28,8 @@ double InputSample[BUFFER_LEN];
 
 void FIR_Init(void)
 {
-	memset(InputSample, 0, sizeof(InputSample));
-	memset(Input_SEN, 	0, sizeof(Input_SEN));
+	memset(InputSample, 0, BUFFER_LEN);
+	memset(Input_SEN, 	0, NUM_CHANNEL*NUM_SAMPLES);
 }
 void Median_Filter(double *input, double *output, int length)
 {
