@@ -5,6 +5,13 @@
 #define MOTOR3_PWM				PWM_CHANNEL_4
 #define CAN_DATA_LENGTH		6
 
+#define SEN1_CALIB					0.0f
+#define SEN2_CALIB					0.0f
+#define SEN3_CALIB					0.0f
+
+
+//printf("%0.5f,\t%0.5f,\t%0.5f,\n", CurentValue_MOTOR[MOTOR1] - 220.0, CurentValue_MOTOR[MOTOR2] + 50.0, CurentValue_MOTOR[MOTOR3]-500.0);
+		
 
 xQueueHandle  PidQueue;
 xQueueHandle  CanRxQueue;
@@ -43,6 +50,7 @@ unsigned char Application_Init(void)
 	PID_WindUp_Init(MOTOR1, PWM_Max_Value);
 	PID_WindUp_Init(MOTOR2, PWM_Max_Value);
 	PID_WindUp_Init(MOTOR3, PWM_Max_Value);
+	
 	PID_Init(MOTOR1, 5, 0.001, 0.00001);
 	PID_Init(MOTOR2, 5, 0.001, 0.00001);
 	PID_Init(MOTOR3, 5, 0.001, 0.00001);
@@ -80,47 +88,55 @@ void PID_TASK(void *pvParameters)
 	portBASE_TYPE xStatus;
 	xMomentData ReadValue;
 	float CurentValue_MOTOR[3];
-	long PWM_MOTOR[3] = {0, 0, 0}; 
+	int PWM_MOTOR[3] = {0, 0, 0}; 
 	unsigned char i = 0;
+	
 	xLastWakeTime = xTaskGetTickCount();
 	while(1)
 	{
 		while(FIR_CollectData(SEN_MOTOR1, TSVN_ACS712_Read(ACS_1)) != DONE);
-		CurentValue_MOTOR[MOTOR1] = AMES_Filter(SEN_MOTOR1);
+		CurentValue_MOTOR[MOTOR1] = (AMES_Filter(SEN_MOTOR1) + SEN1_CALIB)*0.8;
 		while(FIR_CollectData(SEN_MOTOR2 ,TSVN_ACS712_Read(ACS_2)) != DONE);
-		CurentValue_MOTOR[MOTOR2] = AMES_Filter(SEN_MOTOR2);
+		CurentValue_MOTOR[MOTOR2] = (AMES_Filter(SEN_MOTOR2) + SEN2_CALIB)*0.8;
 		while(FIR_CollectData(SEN_MOTOR3,TSVN_ACS712_Read(ACS_3))  != DONE);
-		CurentValue_MOTOR[MOTOR3] = AMES_Filter(SEN_MOTOR3);
+		CurentValue_MOTOR[MOTOR3] = (AMES_Filter(SEN_MOTOR3) + SEN3_CALIB)*0.8;
 		if (uxQueueMessagesWaiting(PidQueue) != NULL)
 		{
 			xStatus = xQueueReceive(PidQueue, &ReadValue, 0);
 			if (xStatus == pdPASS)
 			{
 				PWM_MOTOR[MOTOR1] = PID_Calculate(MOTOR1, ReadValue.Moment_MOTOR1 ,CurentValue_MOTOR[MOTOR1]);
+				if (PWM_MOTOR[MOTOR1] < 0)
+						DIR_Change(MOTOR1, RESERVE);
+				else
+						DIR_Change(MOTOR1, FORWARD);
+				TSVN_PWM_TIM5_Set_Duty(abs(PWM_MOTOR[MOTOR1]), MOTOR1_PWM);
+				
 				PWM_MOTOR[MOTOR2] = PID_Calculate(MOTOR2, ReadValue.Moment_MOTOR2 ,CurentValue_MOTOR[MOTOR2]);
+				if (PWM_MOTOR[MOTOR2] < 0)
+						DIR_Change(MOTOR2, RESERVE);
+				else
+						DIR_Change(MOTOR2, FORWARD);
+				TSVN_PWM_TIM5_Set_Duty(abs(PWM_MOTOR[MOTOR2]), MOTOR2_PWM);
+				
 				PWM_MOTOR[MOTOR3] = PID_Calculate(MOTOR3, ReadValue.Moment_MOTOR3 ,CurentValue_MOTOR[MOTOR3]);
-				for(i = 0; i< (MOTOR3 + 1); i++)
-				{
-					if (PWM_MOTOR[i] < 0)
-						DIR_Change(i, RESERVE);
-					else
-						DIR_Change(i, FORWARD);
-					if (i == MOTOR1)
-						TSVN_PWM_TIM5_Set_Duty(abs(PWM_MOTOR[i]), MOTOR1_PWM);
-					else if (i == MOTOR2)
-						TSVN_PWM_TIM5_Set_Duty(abs(PWM_MOTOR[i]), MOTOR2_PWM);
-					else if (i == MOTOR3)
-						TSVN_PWM_TIM5_Set_Duty(abs(PWM_MOTOR[i]), MOTOR3_PWM);	
-				}	
-				//*******For Debug******************
-				//vTaskSuspendAll();
-				//printf("%0.5f,\t%0.5f,\t%0.5f,\n", CurentValue_MOTOR[MOTOR1], CurentValue_MOTOR[MOTOR2], CurentValue_MOTOR[MOTOR3]);
-				//xTaskResumeAll();
-				//*************End Debug************
+				
+				if (PWM_MOTOR[MOTOR3] < 0)
+						DIR_Change(MOTOR3, RESERVE);
+				else
+						DIR_Change(MOTOR3, FORWARD);
+				TSVN_PWM_TIM5_Set_Duty(abs(PWM_MOTOR[MOTOR3]), MOTOR3_PWM);
+				
+				vTaskSuspendAll();
+				printf("PWM: %d,\t%d,\t%d,\n", PWM_MOTOR[MOTOR1], PWM_MOTOR[MOTOR2], PWM_MOTOR[MOTOR3]);
+				printf("CUR: %0.5f,\t%0.5f,\t%0.5f,\n", 	CurentValue_MOTOR[MOTOR1], 	CurentValue_MOTOR[MOTOR2], 	CurentValue_MOTOR[MOTOR3]);
+				printf("SET: %0.5f,\t%0.5f,\t%0.5f,\n", 	ReadValue.Moment_MOTOR1, ReadValue.Moment_MOTOR2, ReadValue.Moment_MOTOR3);
+				xTaskResumeAll();
+				
 			}
 		}
 		TSVN_Led_Toggle(LED_D4);
-		vTaskDelayUntil(&xLastWakeTime, 1);
+		vTaskDelayUntil(&xLastWakeTime, 2);
 	}
 }
 void ENCODER_TASK(void *pvParameters)

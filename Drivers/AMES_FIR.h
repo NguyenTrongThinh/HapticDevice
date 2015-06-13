@@ -14,7 +14,7 @@
 #define MAX_FLT_LEN     63
 #define BUFFER_LEN      (MAX_FLT_LEN - 1 + MAX_INPUT_LEN)
 #define FILTER_LEN  		63
-#define NUM_SAMPLES   	80
+#define NUM_SAMPLES   	10
 #define NUM_CHANNEL			3
 
 typedef enum

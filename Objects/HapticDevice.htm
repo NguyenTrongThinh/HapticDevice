@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Objects\HapticDevice.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\HapticDevice.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5050041: Last Updated: Sat Jun 13 11:54:17 2015
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5050041: Last Updated: Sat Jun 13 14:06:44 2015
 <BR><P>
 <H3>Maximum Stack Usage =        776 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -389,8 +389,8 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> xtask.o(.text)
 </UL>
-<P><STRONG><a name="[9a]"></a>PID_TASK</STRONG> (Thumb, 460 bytes, Stack size 56 bytes, xtask.o(.text))
-<BR><BR>[Stack]<UL><LI>Max Depth = 200<LI>Call Chain = PID_TASK &rArr; AMES_Filter &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
+<P><STRONG><a name="[9a]"></a>PID_TASK</STRONG> (Thumb, 560 bytes, Stack size 32 bytes, xtask.o(.text))
+<BR><BR>[Stack]<UL><LI>Max Depth = 176<LI>Call Chain = PID_TASK &rArr; AMES_Filter &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
 </UL>
 <BR>[Calls]<UL><LI><a href="#[90]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskResumeAll
 <LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskGetTickCount
@@ -406,6 +406,7 @@ Global Symbols
 <LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AMES_Filter
 <LI><a href="#[6c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DIR_Change
 <LI><a href="#[58]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_f2d
+<LI><a href="#[5a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dmul
 <LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_d2f
 <LI><a href="#[8f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
@@ -1100,7 +1101,7 @@ Global Symbols
 <LI><a href="#[fe]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy4
 </UL>
 
-<P><STRONG><a name="[9c]"></a>FIR_CollectData</STRONG> (Thumb, 38 bytes, Stack size 16 bytes, ames_fir.o(.text))
+<P><STRONG><a name="[9c]"></a>FIR_CollectData</STRONG> (Thumb, 36 bytes, Stack size 16 bytes, ames_fir.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = FIR_CollectData &rArr; __aeabi_memcpy4
 </UL>
 <BR>[Calls]<UL><LI><a href="#[fe]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy4
@@ -1108,7 +1109,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PID_TASK
 </UL>
 
-<P><STRONG><a name="[9d]"></a>AMES_Filter</STRONG> (Thumb, 198 bytes, Stack size 56 bytes, ames_fir.o(.text))
+<P><STRONG><a name="[9d]"></a>AMES_Filter</STRONG> (Thumb, 196 bytes, Stack size 56 bytes, ames_fir.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 144<LI>Call Chain = AMES_Filter &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
 </UL>
 <BR>[Calls]<UL><LI><a href="#[5a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dmul
@@ -2627,6 +2628,7 @@ Global Symbols
 <LI><a href="#[9b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_ACS712_Read
 <LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PID_Calculate
 <LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AMES_Filter
+<LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PID_TASK
 <LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ENCODER_TASK
 <LI><a href="#[74]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MomentCalculate
 <LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;JacobianCalAngle
