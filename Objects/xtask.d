@@ -52,8 +52,6 @@
 .\objects\xtask.o: .\Drivers\AMES_CLOCK.h
 .\objects\xtask.o: .\Drivers\AMES_QEI.h
 .\objects\xtask.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
-.\objects\xtask.o: .\Drivers\AMES_PID.h
-.\objects\xtask.o: .\Drivers\AMES_PWM.h
 .\objects\xtask.o: .\Drivers\AMES_FIR.h
 .\objects\xtask.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 .\objects\xtask.o: .\Drivers\AMES_CAN.h

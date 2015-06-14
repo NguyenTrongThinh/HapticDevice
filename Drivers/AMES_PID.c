@@ -41,11 +41,11 @@ void PID_Reset(unsigned char Channel)
   PID_Integrated[Channel] = 0.0;
   PID_Prev_Input[Channel] = 0.0;
 }
-void PID_Init(unsigned char Channel, float Kp, float Ki, float Kd)
+void PID_Init(unsigned char Channel, PIDCoff Coff)
 {	
-  PID_Kp[Channel]         = Kp;
-  PID_Ki[Channel]         = Ki;
-  PID_Kd[Channel]         = Kd;
+  PID_Kp[Channel]         = Coff.Kp;
+  PID_Ki[Channel]         = Coff.Ki;
+  PID_Kd[Channel]         = Coff.Kd;
   PID_Integrated[Channel] = 0.0;
   PID_Prev_Input[Channel] = 0.0;
 }

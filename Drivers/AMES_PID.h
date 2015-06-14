@@ -1,6 +1,14 @@
 #include <stdlib.h>
+
+typedef struct PID_Coff
+{
+	float Kp;
+	float Ki;
+	float Kd;
+}PIDCoff;
+
 enum{FAIL,PASS};
-void PID_Init(unsigned char Channel, float Kp, float Ki, float Kd);
+void PID_Init(unsigned char Channel, PIDCoff Coff);
 long PID_Calculate(unsigned char Channel, double SetPoint, double InputValue);
 void PID_Reset(unsigned char Channel);
 unsigned char PID_Mem_Create(unsigned char NumberOfChannel);

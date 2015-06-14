@@ -9,6 +9,12 @@
 #include <stm32f10x_tim.h>
 #include <stdlib.h>
 
+typedef enum
+{
+	Enable,
+	Disable,
+}TIM_CMD;
+
 void TSVN_TIM6_Init(unsigned long us);
 void TSVN_TIM7_Init(unsigned long us);
 

@@ -54,7 +54,7 @@ void TSVN_CAN_Init(void)
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);
 	NVIC_InitStructure.NVIC_IRQChannel = CAN1_RX0_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x02;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x04;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
 	
