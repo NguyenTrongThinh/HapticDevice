@@ -12,6 +12,9 @@
 #include <AMES_CAN.h>
 #include <AMES_ACS712.h>
 #include <AMES_USART.h>
+#include <AMES_TIMER.h>
+#include <AMES_PID.h>
+#include <AMES_PWM.h>
 
 #define POS_TASK_STACK_SIZE				(configMINIMAL_STACK_SIZE)
 #define TRANSFER_TASK_STACK_SIZE	(configMINIMAL_STACK_SIZE)

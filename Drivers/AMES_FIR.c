@@ -86,8 +86,8 @@ double AMES_Filter(SEN_CHANNEL Channel)
 {
 	unsigned char i = 0;
 	double Sum = 0;
-	//Median_Filter(Input_SEN[Channel], Output, NUM_SAMPLES);
-	FIR_Filter(coeffs, Input_SEN[Channel], Output, NUM_SAMPLES, FILTER_LEN);
+	Median_Filter(Input_SEN[Channel], Output, NUM_SAMPLES);
+	//FIR_Filter(coeffs, Input_SEN[Channel], Output, NUM_SAMPLES, FILTER_LEN);
 	for (i = 0; i < NUM_SAMPLES; i++)
 		Sum+=Output[i];
 	Sum /= NUM_SAMPLES;

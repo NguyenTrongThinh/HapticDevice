@@ -8,10 +8,11 @@
 
 xQueueHandle Pos_Queue;
 xQueueHandle CanRxQueue;
+xQueueHandle RxQueue;
 xQueueHandle Moment_Queue;
 
 xSemaphoreHandle CAN_CountingSemaphore;
-
+xSemaphoreHandle UART_xCountingSemaphore;
 Moment_Typedef Moment;
 
 enum  {MOTOR1 = 0x00, MOTOR2, MOTOR3};
@@ -24,23 +25,52 @@ enum  {USART_ID};
 
 unsigned char Application_Init(void)
 {
-	
+	unsigned int PWM_Max_Value = 0;
+	PIDCoff Coff;
+	Coff.Kp = 0;
+	Coff.Ki = 0;
+	Coff.Kd = 0;
 	TSVN_FOSC_Init();
 	TSVN_Led_Init(ALL);
+	TSVN_ACS712_Init();
 	
 	TSVN_QEI_TIM1_Init(400);
 	TSVN_QEI_TIM3_Init(400);
 	TSVN_QEI_TIM4_Init(400);
 	
 	TSVN_CAN_Init();
+	TSVN_USART_Init();
+	TSVN_TIM6_Init(500);
 	
-	Pos_Queue = xQueueCreate(20, sizeof(Pos_TypeDef));
-	CanRxQueue = xQueueCreate(20, sizeof(CanRxMsg));
-	Moment_Queue = xQueueCreate(20, sizeof(Moment_Typedef));
-	CAN_CountingSemaphore = xSemaphoreCreateCounting(10, 0);
+	FIR_Init();
+	
+	PWM_Max_Value = TSVN_PWM_TIM5_Init(5000);
+	
+	TSVN_PWM_TIM5_Set_Duty(0, MOTOR1_PWM);
+	TSVN_PWM_TIM5_Set_Duty(0, MOTOR2_PWM);
+	TSVN_PWM_TIM5_Set_Duty(0, MOTOR3_PWM);
+	TSVN_PWM_TIM5_Start();
+	
+	DIR_Init();
+	
+	PID_Mem_Create(3);
+	PID_WindUp_Init(MOTOR1, PWM_Max_Value);
+	PID_WindUp_Init(MOTOR2, PWM_Max_Value);
+	PID_WindUp_Init(MOTOR3, PWM_Max_Value);
+	PID_Init(MOTOR1, Coff);
+	PID_Init(MOTOR2, Coff);
+	PID_Init(MOTOR3, Coff);
+	
+	Pos_Queue = xQueueCreate(200, sizeof(Pos_TypeDef));
+	CanRxQueue = xQueueCreate(200, sizeof(CanRxMsg));
+	Moment_Queue = xQueueCreate(200, sizeof(Moment_Typedef));
+	RxQueue = xQueueCreate(200, sizeof(xData));
+	
+	CAN_CountingSemaphore = xSemaphoreCreateCounting(200, 0);
+	UART_xCountingSemaphore = xSemaphoreCreateCounting(200, 0);
 	
 	if (Pos_Queue != NULL && CanRxQueue != NULL && CAN_CountingSemaphore != NULL &&
-			Moment_Queue != NULL)
+			Moment_Queue != NULL && UART_xCountingSemaphore != NULL && RxQueue != NULL)
 		return SUCCESS;
 	return ERROR;
 }
@@ -50,7 +80,6 @@ void Application_Run(void)
 	xTaskCreate(POS_TASK, 	"POS", POS_TASK_STACK_SIZE, NULL, POS_TASK_PRIORITY, NULL);	
 	xTaskCreate(TRANSFER_TASK, 	"TRANSFER", TRANSFER_TASK_STACK_SIZE, NULL, TRANSFER_TASK_PRIORITY, NULL);	
 	xTaskCreate(MOMENT_TASK, 	"MOMENT", MOMENT_TASK_STACK_SIZE, NULL, MOMENT_TASK_PRIORITY, NULL);	
-
 	vTaskStartScheduler();
 }
 
@@ -101,10 +130,23 @@ void MOMENT_TASK(void *pvParameters)
 }
 void TRANSFER_TASK(void *pvParameters)
 {
+	portBASE_TYPE xStatus;
+	xData ReadValue;
 	while(1)
 	{	
-		TSVN_Led_Toggle(LED_D5);
-		vTaskDelay(500);
+		xSemaphoreTake(UART_xCountingSemaphore, portMAX_DELAY);
+		if (uxQueueMessagesWaiting(RxQueue) != NULL)
+		{
+			xStatus = xQueueReceive(RxQueue, &ReadValue, 0);
+			if (xStatus == pdPASS)
+			{
+				vTaskSuspendAll();
+				printf("ID: %d\n", ReadValue.ID);
+				printf("Value: %c\n", ReadValue.Value);
+				TSVN_Led_Toggle(LED_D5);
+				xTaskResumeAll();
+			}
+		}
 	}
 }
 
@@ -155,10 +197,12 @@ void POS_TASK(void *pvParameters)
 					CanSendData.Data[4] = 1;
 					CanSendData.Data[5] = (unsigned char)Pos.Pz;
 				}
+				vTaskSuspendAll();
 				CAN_Transmit(CAN1, &CanSendData);
+				xTaskResumeAll();
 		}
 		TSVN_Led_Toggle(LED_D4);
-		vTaskDelay(200);
+		vTaskDelay(100);
 	}
 }
 
@@ -174,3 +218,75 @@ void CAN1_RX0_IRQHandler(void)
 	}
 	portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
 }
+void USART1_IRQHandler(void)
+{
+	xData ReceiveData;
+	static portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
+	ReceiveData.ID = USART_ID;
+	if (USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
+    {
+      ReceiveData.Value =(unsigned char)USART_ReceiveData(USART1);
+      xQueueSendToBackFromISR(RxQueue, &ReceiveData, &xHigherPriorityTaskWoken);
+			xSemaphoreGiveFromISR(UART_xCountingSemaphore, &xHigherPriorityTaskWoken);
+		}
+	portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
+}
+void TIM6_IRQHandler(void)
+{
+	static float CurentValue_MOTOR[3];
+	static portBASE_TYPE xStatus;
+	static Moment_Typedef Moment;
+	static float Moments[3];
+	static long PWM_MOTOR[3]; 
+	static unsigned char i;
+	if(TIM_GetITStatus(TIM6, TIM_IT_Update) != RESET)
+	{
+		TIM_ClearITPendingBit(TIM6, TIM_IT_Update);
+		if (i++ > 10)
+		{
+		TSVN_Led_Toggle(LED_D6);
+			i = 0;
+		}
+		while(FIR_CollectData(SEN_MOTOR1, TSVN_ACS712_Read(ACS_1)) != DONE);
+		CurentValue_MOTOR[MOTOR1] = AMES_Filter(SEN_MOTOR1);
+		while(FIR_CollectData(SEN_MOTOR2 ,TSVN_ACS712_Read(ACS_2)) != DONE);
+		CurentValue_MOTOR[MOTOR2] = AMES_Filter(SEN_MOTOR2);
+		while(FIR_CollectData(SEN_MOTOR3,TSVN_ACS712_Read(ACS_3))  != DONE);
+		CurentValue_MOTOR[MOTOR3] = AMES_Filter(SEN_MOTOR3);
+		
+		PWM_MOTOR[MOTOR1] = PID_Calculate(MOTOR1, 600.0 ,CurentValue_MOTOR[MOTOR1]);
+		if (PWM_MOTOR[MOTOR1] < 0)
+				DIR_Change(MOTOR1, RESERVE);
+		else
+				DIR_Change(MOTOR1, FORWARD);
+		TSVN_PWM_TIM5_Set_Duty(abs(PWM_MOTOR[MOTOR1]), MOTOR1_PWM);
+		
+		PWM_MOTOR[MOTOR2] = PID_Calculate(MOTOR2, 600.0 ,CurentValue_MOTOR[MOTOR2]);
+		if (PWM_MOTOR[MOTOR2] < 0)
+				DIR_Change(MOTOR2, RESERVE);
+		else
+				DIR_Change(MOTOR2, FORWARD);
+		TSVN_PWM_TIM5_Set_Duty(abs(PWM_MOTOR[MOTOR2]), MOTOR2_PWM);
+		
+		PWM_MOTOR[MOTOR3] = PID_Calculate(MOTOR3, 600.0 ,CurentValue_MOTOR[MOTOR3]);
+		
+		if (PWM_MOTOR[MOTOR3] < 0)
+				DIR_Change(MOTOR3, RESERVE);
+		else
+				DIR_Change(MOTOR3, FORWARD);
+		TSVN_PWM_TIM5_Set_Duty(abs(PWM_MOTOR[MOTOR3]), MOTOR3_PWM);
+		
+		if (uxQueueMessagesWaitingFromISR(Moment_Queue) != NULL)
+		{
+			xStatus = xQueueReceiveFromISR(Moment_Queue, &Moment, 0);
+			if (xStatus == pdPASS)
+			{
+				Moments[0] = Moment.Mx;
+				Moments[1] = Moment.My;
+				Moments[2] = Moment.Mz;
+			}
+		}
+
+	}
+}
+

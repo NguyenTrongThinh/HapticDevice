@@ -57,3 +57,6 @@
 .\objects\xtask.o: .\Drivers\AMES_CAN.h
 .\objects\xtask.o: .\Drivers\AMES_ACS712.h
 .\objects\xtask.o: .\Drivers\AMES_USART.h
+.\objects\xtask.o: .\Drivers\AMES_TIMER.h
+.\objects\xtask.o: .\Drivers\AMES_PID.h
+.\objects\xtask.o: .\Drivers\AMES_PWM.h
