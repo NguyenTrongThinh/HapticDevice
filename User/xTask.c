@@ -19,6 +19,10 @@ enum  {MOTOR1 = 0x00, MOTOR2, MOTOR3};
 enum  {RESERVE, FORWARD};
 enum  {USART_ID};
 
+const float ACS1_CALIB = 0.0f;
+const float ACS2_CALIB = 0.0f;
+const float ACS3_CALIB = 480.0f;
+
 //***********************************Global*********************
 
 //**************************************************************
@@ -27,9 +31,9 @@ unsigned char Application_Init(void)
 {
 	unsigned int PWM_Max_Value = 0;
 	PIDCoff Coff;
-	Coff.Kp = 0;
-	Coff.Ki = 0;
-	Coff.Kd = 0;
+	Coff.Kp = 20;
+	Coff.Ki = 0.00001;
+	Coff.Kd = 0.000000001;
 	TSVN_FOSC_Init();
 	TSVN_Led_Init(ALL);
 	TSVN_ACS712_Init();
@@ -40,7 +44,7 @@ unsigned char Application_Init(void)
 	
 	TSVN_CAN_Init();
 	TSVN_USART_Init();
-	TSVN_TIM6_Init(500);
+	TSVN_TIM6_Init(1000);
 	
 	FIR_Init();
 	
@@ -87,7 +91,7 @@ void MOMENT_TASK(void *pvParameters)
 {
 	float Theta[3];
 	float Cordinate[3];
-	float F[3] = {0.0, 15.0, 0.0};
+	float F[3] = {0.0, 0.0, 15.0};
 	float Phi[3];
 	float Moment[3];
 	portBASE_TYPE xStatus;
@@ -96,36 +100,52 @@ void MOMENT_TASK(void *pvParameters)
 	unsigned char Status;
 	while(1)
 	{
-		xSemaphoreTake(CAN_CountingSemaphore, portMAX_DELAY);
-		if (uxQueueMessagesWaiting(CanRxQueue) != NULL)
+//		xSemaphoreTake(CAN_CountingSemaphore, portMAX_DELAY);
+//		if (uxQueueMessagesWaiting(CanRxQueue) != NULL)
+//		{
+//			xStatus = xQueueReceive(CanRxQueue, &CanReceiveData, 1);
+//			if (xStatus == pdPASS)
+//			{
+//				F[0] = CanReceiveData.Data[1];
+//				F[1] = CanReceiveData.Data[3];
+//				F[2] = CanReceiveData.Data[5];
+//				if (CanReceiveData.Data[0] == 0)
+//					F[0] = -F[0];
+//				if (CanReceiveData.Data[2] == 0)
+//					F[1] = -F[1];
+//				if (CanReceiveData.Data[4] == 0)
+//					F[2] = -F[2];
+//				Theta[0] = ((float)TSVN_QEI_TIM1_Value()*0.9)/7.0;
+//				Theta[1] = ((float)TSVN_QEI_TIM4_Value()*0.9)/7.0;
+//				Theta[2] = ((float)TSVN_QEI_TIM3_Value()*0.9)/7.0;		
+//				Status = (char)Delta_CalcForward(Theta[0], Theta[1], Theta[2], &Cordinate[0], &Cordinate[1], &Cordinate[2]);
+//				if (Status == 0)
+//				{
+//					MomentCalculate(Theta, Phi, Cordinate, F, &Moment);
+//					M.Mx = Moment[0];
+//					M.My = Moment[1];
+//					M.Mz = Moment[2];
+//					xQueueSendToBack(Moment_Queue, &M, 1);
+//				}
+//			}
+//		}	
+		Theta[0] = ((float)TSVN_QEI_TIM1_Value()*0.9)/7.0;
+		Theta[1] = ((float)TSVN_QEI_TIM4_Value()*0.9)/7.0;
+		Theta[2] = ((float)TSVN_QEI_TIM3_Value()*0.9)/7.0;		
+		Status = (char)Delta_CalcForward(Theta[0], Theta[1], Theta[2], &Cordinate[0], &Cordinate[1], &Cordinate[2]);
+		if (Status == 0)
 		{
-			xStatus = xQueueReceive(CanRxQueue, &CanReceiveData, 1);
-			if (xStatus == pdPASS)
-			{
-				F[0] = CanReceiveData.Data[1];
-				F[1] = CanReceiveData.Data[3];
-				F[2] = CanReceiveData.Data[5];
-				if (CanReceiveData.Data[0] == 0)
-					F[0] = -F[0];
-				if (CanReceiveData.Data[2] == 0)
-					F[1] = -F[1];
-				if (CanReceiveData.Data[4] == 0)
-					F[2] = -F[2];
-				Theta[0] = ((float)TSVN_QEI_TIM1_Value()*0.9)/7.0;
-				Theta[1] = ((float)TSVN_QEI_TIM4_Value()*0.9)/7.0;
-				Theta[2] = ((float)TSVN_QEI_TIM3_Value()*0.9)/7.0;		
-				Status = (char)Delta_CalcForward(Theta[0], Theta[1], Theta[2], &Cordinate[0], &Cordinate[1], &Cordinate[2]);
-				if (Status == 0)
-				{
-					MomentCalculate(Theta, Phi, Cordinate, F, &Moment);
-					M.Mx = Moment[0];
-					M.My = Moment[1];
-					M.Mz = Moment[2];
-					xQueueSendToBack(Moment_Queue, &M, 1);
-				}
-			}
-		}	
+			Phi[0] = -90.0;
+			Phi[1] = 30.0;
+			Phi[2] = 150;
+			MomentCalculate(Theta, Phi, Cordinate, F, &Moment);
+			M.Mx = Moment[0];
+			M.My = Moment[1];
+			M.Mz = Moment[2];
+			xQueueSendToBack(Moment_Queue, &M, 1);
+		}
 		TSVN_Led_Toggle(LED_D6);
+		vTaskDelay(200);
 	}
 }
 void TRANSFER_TASK(void *pvParameters)
@@ -244,31 +264,31 @@ void TIM6_IRQHandler(void)
 		TIM_ClearITPendingBit(TIM6, TIM_IT_Update);
 		if (i++ > 10)
 		{
-		TSVN_Led_Toggle(LED_D6);
+			TSVN_Led_Toggle(LED_D7);
 			i = 0;
 		}
 		while(FIR_CollectData(SEN_MOTOR1, TSVN_ACS712_Read(ACS_1)) != DONE);
-		CurentValue_MOTOR[MOTOR1] = AMES_Filter(SEN_MOTOR1);
+		CurentValue_MOTOR[MOTOR1] = AMES_Filter(SEN_MOTOR1) - ACS1_CALIB;
 		while(FIR_CollectData(SEN_MOTOR2 ,TSVN_ACS712_Read(ACS_2)) != DONE);
-		CurentValue_MOTOR[MOTOR2] = AMES_Filter(SEN_MOTOR2);
+		CurentValue_MOTOR[MOTOR2] = AMES_Filter(SEN_MOTOR2) - ACS2_CALIB;
 		while(FIR_CollectData(SEN_MOTOR3,TSVN_ACS712_Read(ACS_3))  != DONE);
-		CurentValue_MOTOR[MOTOR3] = AMES_Filter(SEN_MOTOR3);
-		
-		PWM_MOTOR[MOTOR1] = PID_Calculate(MOTOR1, 600.0 ,CurentValue_MOTOR[MOTOR1]);
+		CurentValue_MOTOR[MOTOR3] = AMES_Filter(SEN_MOTOR3) - ACS3_CALIB;
+		printf("%0.5f\t%0.5f\t%0.5f\n", CurentValue_MOTOR[MOTOR1], CurentValue_MOTOR[MOTOR2], CurentValue_MOTOR[MOTOR3]);
+		PWM_MOTOR[MOTOR1] = PID_Calculate(MOTOR1, 600.0, CurentValue_MOTOR[MOTOR1]);
 		if (PWM_MOTOR[MOTOR1] < 0)
 				DIR_Change(MOTOR1, RESERVE);
 		else
 				DIR_Change(MOTOR1, FORWARD);
 		TSVN_PWM_TIM5_Set_Duty(abs(PWM_MOTOR[MOTOR1]), MOTOR1_PWM);
 		
-		PWM_MOTOR[MOTOR2] = PID_Calculate(MOTOR2, 600.0 ,CurentValue_MOTOR[MOTOR2]);
+		PWM_MOTOR[MOTOR2] = PID_Calculate(MOTOR2, 600.0, CurentValue_MOTOR[MOTOR2]);
 		if (PWM_MOTOR[MOTOR2] < 0)
 				DIR_Change(MOTOR2, RESERVE);
 		else
 				DIR_Change(MOTOR2, FORWARD);
 		TSVN_PWM_TIM5_Set_Duty(abs(PWM_MOTOR[MOTOR2]), MOTOR2_PWM);
 		
-		PWM_MOTOR[MOTOR3] = PID_Calculate(MOTOR3, 600.0 ,CurentValue_MOTOR[MOTOR3]);
+		PWM_MOTOR[MOTOR3] = PID_Calculate(MOTOR3, 600.0, CurentValue_MOTOR[MOTOR3]);
 		
 		if (PWM_MOTOR[MOTOR3] < 0)
 				DIR_Change(MOTOR3, RESERVE);
