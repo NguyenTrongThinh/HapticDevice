@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Objects\HapticDevice.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\HapticDevice.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5050041: Last Updated: Fri Jun 19 15:28:33 2015
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5050041: Last Updated: Fri Jun 19 23:55:25 2015
 <BR><P>
 <H3>Maximum Stack Usage =        752 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -1471,27 +1471,27 @@ Global Symbols
 <BR>[Address Reference Count : 1]<UL><LI> printf3.o(i.__0printf$3)
 </UL>
 <P><STRONG><a name="[ec]"></a>NVIC_PriorityGroupConfig</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, misc.o(.text))
-<BR><BR>[Called By]<UL><LI><a href="#[118]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM2_Init
+<BR><BR>[Called By]<UL><LI><a href="#[11c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_TIM7_Init
+<LI><a href="#[118]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM2_Init
 <LI><a href="#[7f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_USART_Init
 <LI><a href="#[80]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_TIM6_Init
 <LI><a href="#[7d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM4_Init
 <LI><a href="#[7c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM3_Init
 <LI><a href="#[7b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM1_Init
 <LI><a href="#[7e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_CAN_Init
-<LI><a href="#[11c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_TIM7_Init
 </UL>
 
 <P><STRONG><a name="[ed]"></a>NVIC_Init</STRONG> (Thumb, 112 bytes, Stack size 4 bytes, misc.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 4<LI>Call Chain = NVIC_Init
 </UL>
-<BR>[Called By]<UL><LI><a href="#[118]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM2_Init
+<BR>[Called By]<UL><LI><a href="#[11c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_TIM7_Init
+<LI><a href="#[118]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM2_Init
 <LI><a href="#[7f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_USART_Init
 <LI><a href="#[80]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_TIM6_Init
 <LI><a href="#[7d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM4_Init
 <LI><a href="#[7c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM3_Init
 <LI><a href="#[7b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM1_Init
 <LI><a href="#[7e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_CAN_Init
-<LI><a href="#[11c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_TIM7_Init
 </UL>
 
 <P><STRONG><a name="[166]"></a>NVIC_SetVectorTable</STRONG> (Thumb, 16 bytes, Stack size 0 bytes, misc.o(.text), UNUSED)
@@ -1876,7 +1876,8 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[e6]"></a>RCC_APB1PeriphClockCmd</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, stm32f10x_rcc.o(.text))
-<BR><BR>[Called By]<UL><LI><a href="#[11b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM4_Deinit
+<BR><BR>[Called By]<UL><LI><a href="#[11c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_TIM7_Init
+<LI><a href="#[11b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM4_Deinit
 <LI><a href="#[11a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM3_Deinit
 <LI><a href="#[119]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM2_Deinit
 <LI><a href="#[118]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM2_Init
@@ -1885,7 +1886,6 @@ Global Symbols
 <LI><a href="#[7c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM3_Init
 <LI><a href="#[82]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_PWM_TIM5_Init
 <LI><a href="#[7e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_CAN_Init
-<LI><a href="#[11c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_TIM7_Init
 </UL>
 
 <P><STRONG><a name="[1b7]"></a>RCC_AHBPeriphResetCmd</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, stm32f10x_rcc.o(.text), UNUSED)
@@ -2008,13 +2008,13 @@ Global Symbols
 <P><STRONG><a name="[10b]"></a>TIM_TimeBaseInit</STRONG> (Thumb, 148 bytes, Stack size 4 bytes, stm32f10x_tim.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 4<LI>Call Chain = TIM_TimeBaseInit
 </UL>
-<BR>[Called By]<UL><LI><a href="#[118]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM2_Init
+<BR>[Called By]<UL><LI><a href="#[11c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_TIM7_Init
+<LI><a href="#[118]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM2_Init
 <LI><a href="#[80]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_TIM6_Init
 <LI><a href="#[7d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM4_Init
 <LI><a href="#[7c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM3_Init
 <LI><a href="#[7b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM1_Init
 <LI><a href="#[82]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_PWM_TIM5_Init
-<LI><a href="#[11c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_TIM7_Init
 </UL>
 
 <P><STRONG><a name="[1d2]"></a>TIM_OC1Init</STRONG> (Thumb, 132 bytes, Stack size 4 bytes, stm32f10x_tim.o(.text), UNUSED)
@@ -2067,7 +2067,8 @@ Global Symbols
 <P><STRONG><a name="[1db]"></a>TIM_BDTRStructInit</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, stm32f10x_tim.o(.text), UNUSED)
 
 <P><STRONG><a name="[113]"></a>TIM_Cmd</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, stm32f10x_tim.o(.text))
-<BR><BR>[Called By]<UL><LI><a href="#[118]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM2_Init
+<BR><BR>[Called By]<UL><LI><a href="#[11c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_TIM7_Init
+<LI><a href="#[118]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM2_Init
 <LI><a href="#[114]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_PWM_TIM5_Stop
 <LI><a href="#[80]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_TIM6_Init
 <LI><a href="#[7d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM4_Init
@@ -2075,18 +2076,17 @@ Global Symbols
 <LI><a href="#[7b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM1_Init
 <LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_PWM_TIM5_Start
 <LI><a href="#[82]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_PWM_TIM5_Init
-<LI><a href="#[11c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_TIM7_Init
 </UL>
 
 <P><STRONG><a name="[1dc]"></a>TIM_CtrlPWMOutputs</STRONG> (Thumb, 22 bytes, Stack size 0 bytes, stm32f10x_tim.o(.text), UNUSED)
 
 <P><STRONG><a name="[116]"></a>TIM_ITConfig</STRONG> (Thumb, 16 bytes, Stack size 0 bytes, stm32f10x_tim.o(.text))
-<BR><BR>[Called By]<UL><LI><a href="#[118]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM2_Init
+<BR><BR>[Called By]<UL><LI><a href="#[11c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_TIM7_Init
+<LI><a href="#[118]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM2_Init
 <LI><a href="#[80]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_TIM6_Init
 <LI><a href="#[7d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM4_Init
 <LI><a href="#[7c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM3_Init
 <LI><a href="#[7b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM1_Init
-<LI><a href="#[11c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_TIM7_Init
 </UL>
 
 <P><STRONG><a name="[1dd]"></a>TIM_GenerateEvent</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, stm32f10x_tim.o(.text), UNUSED)
@@ -2248,7 +2248,8 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[a4]"></a>TIM_ClearITPendingBit</STRONG> (Thumb, 6 bytes, Stack size 0 bytes, stm32f10x_tim.o(.text))
-<BR><BR>[Called By]<UL><LI><a href="#[28]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM4_IRQHandler
+<BR><BR>[Called By]<UL><LI><a href="#[11c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_TIM7_Init
+<LI><a href="#[28]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM4_IRQHandler
 <LI><a href="#[27]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM3_IRQHandler
 <LI><a href="#[26]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM2_IRQHandler
 <LI><a href="#[118]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM2_Init
@@ -2258,7 +2259,6 @@ Global Symbols
 <LI><a href="#[7c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM3_Init
 <LI><a href="#[7b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM1_Init
 <LI><a href="#[39]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM6_IRQHandler
-<LI><a href="#[11c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_TIM7_Init
 </UL>
 
 <P><STRONG><a name="[4a]"></a>SystemInit</STRONG> (Thumb, 268 bytes, Stack size 8 bytes, system_stm32f10x.o(.text))
@@ -3128,7 +3128,8 @@ Global Symbols
 <P><STRONG><a name="[107]"></a>free</STRONG> (Thumb, 76 bytes, Stack size 8 bytes, malloc.o(i.free))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = free
 </UL>
-<BR>[Called By]<UL><LI><a href="#[11b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM4_Deinit
+<BR>[Called By]<UL><LI><a href="#[11c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_TIM7_Init
+<LI><a href="#[11b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM4_Deinit
 <LI><a href="#[11a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM3_Deinit
 <LI><a href="#[119]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM2_Deinit
 <LI><a href="#[117]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM1_Deinit
@@ -3137,13 +3138,13 @@ Global Symbols
 <LI><a href="#[80]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_TIM6_Init
 <LI><a href="#[124]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_Get_Parameters
 <LI><a href="#[121]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_USART_Deinit
-<LI><a href="#[11c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_TIM7_Init
 </UL>
 
 <P><STRONG><a name="[103]"></a>malloc</STRONG> (Thumb, 92 bytes, Stack size 20 bytes, malloc.o(i.malloc))
 <BR><BR>[Stack]<UL><LI>Max Depth = 20<LI>Call Chain = malloc
 </UL>
-<BR>[Called By]<UL><LI><a href="#[118]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM2_Init
+<BR>[Called By]<UL><LI><a href="#[11c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_TIM7_Init
+<LI><a href="#[118]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM2_Init
 <LI><a href="#[7f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_USART_Init
 <LI><a href="#[80]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_TIM6_Init
 <LI><a href="#[7d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM4_Init
@@ -3153,7 +3154,6 @@ Global Symbols
 <LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_Led_Init
 <LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PID_Mem_Create
 <LI><a href="#[124]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_Get_Parameters
-<LI><a href="#[11c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_TIM7_Init
 <LI><a href="#[108]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;calloc
 </UL>
 

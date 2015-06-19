@@ -305,7 +305,6 @@ void TIM6_IRQHandler(void)
 				Moments[2] = Moment.Mz;
 			}
 		}
-
 	}
 }
 
