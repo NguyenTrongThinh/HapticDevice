@@ -176,6 +176,12 @@ void POS_TASK(void *pvParameters)
 	Pos_TypeDef Pos;
 	char Status = 0;
 	CanTxMsg CanSendData;
+	
+	CanSendData.StdId = CAN_MASTER_STD_ID;
+	CanSendData.IDE = 	CAN_ID_STD;
+	CanSendData.RTR = 	CAN_RTR_DATA;
+	CanSendData.DLC = 	CAN_DATA_LENGTH;
+	
 	while(1)
 	{
 		Theta[0] = ((float)TSVN_QEI_TIM1_Value()*0.9)/7.0;
@@ -247,6 +253,7 @@ void USART1_IRQHandler(void)
     {
       ReceiveData.Value =(unsigned char)USART_ReceiveData(USART1);
       xQueueSendToBackFromISR(RxQueue, &ReceiveData, &xHigherPriorityTaskWoken);
+			xSemaphoreGiveFromISR(UART_xCountingSemaphore, &xHigherPriorityTaskWoken);
 		}
 	portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
 }
@@ -257,15 +264,9 @@ void TIM6_IRQHandler(void)
 	static Moment_Typedef Moment;
 	static float Moments[3];
 	static long PWM_MOTOR[3]; 
-	static unsigned char i;
 	if(TIM_GetITStatus(TIM6, TIM_IT_Update) != RESET)
 	{
 		TIM_ClearITPendingBit(TIM6, TIM_IT_Update);
-		if (i++ > 10)
-		{
-			TSVN_Led_Toggle(LED_D7);
-			i = 0;
-		}
 		while(FIR_CollectData(SEN_MOTOR1, TSVN_ACS712_Read(ACS_1)) != DONE);
 		CurentValue_MOTOR[MOTOR1] = AMES_Filter(SEN_MOTOR1) - ACS1_CALIB;
 		while(FIR_CollectData(SEN_MOTOR2 ,TSVN_ACS712_Read(ACS_2)) != DONE);

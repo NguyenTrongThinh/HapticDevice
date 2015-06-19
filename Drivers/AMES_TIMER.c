@@ -46,7 +46,7 @@ void TSVN_TIM6_Init(unsigned long us)
 		NVIC_InitStructure.NVIC_IRQChannel = TIM6_IRQn;
 		NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);
 		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-		NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
+		NVIC_InitStructure.NVIC_IRQChannelSubPriority = 10;
 		NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 		NVIC_Init(&NVIC_InitStructure);
 	}

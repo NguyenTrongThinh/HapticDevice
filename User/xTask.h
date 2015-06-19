@@ -1,3 +1,6 @@
+//********************************************************************
+//Haptic devive version 1.0
+//********************************************************************
 #include <FreeRTOS.h>
 #include <task.h>
 #include <Queue.h>
@@ -20,9 +23,9 @@
 #define TRANSFER_TASK_STACK_SIZE	(configMINIMAL_STACK_SIZE)
 #define MOMENT_TASK_STACK_SIZE		(configMINIMAL_STACK_SIZE + 128)
 
-#define POS_TASK_PRIORITY								(tskIDLE_PRIORITY + 1)
-#define TRANSFER_TASK_PRIORITY					(tskIDLE_PRIORITY + 1)
-#define MOMENT_TASK_PRIORITY						(tskIDLE_PRIORITY + 1)
+#define POS_TASK_PRIORITY						(tskIDLE_PRIORITY + 1)
+#define TRANSFER_TASK_PRIORITY			(tskIDLE_PRIORITY + 1)
+#define MOMENT_TASK_PRIORITY				(tskIDLE_PRIORITY + 1)
 
 #define CAN_MASTER_STD_ID 			0x00
 #define CAN_MASTER_EXT_ID 			0x01
