@@ -11,7 +11,6 @@ xQueueHandle CanRxQueue;
 xQueueHandle RxQueue;
 xQueueHandle Moment_Queue;
 
-xSemaphoreHandle CAN_CountingSemaphore;
 xSemaphoreHandle UART_xCountingSemaphore;
 Moment_Typedef Moment;
 
@@ -21,12 +20,13 @@ enum  {USART_ID};
 
 const float ACS1_CALIB = 0.0f;
 const float ACS2_CALIB = 0.0f;
-const float ACS3_CALIB = 480.0f;
+const float ACS3_CALIB = 700.0f;
 
 
 //***********************************Global*********************
 
 //**************************************************************
+
 
 unsigned char Application_Init(void)
 {
@@ -60,16 +60,16 @@ unsigned char Application_Init(void)
 	PID_WindUp_Init(MOTOR1, PWM_Max_Value);
 	PID_WindUp_Init(MOTOR2, PWM_Max_Value);
 	PID_WindUp_Init(MOTOR3, PWM_Max_Value);
-	Coff_MOTOR.Kp = 12.0;
-	Coff_MOTOR.Ki = 0.0;
+	Coff_MOTOR.Kp = 4.5;
+	Coff_MOTOR.Ki = 0.000001;
 	Coff_MOTOR.Kd = 0.0;
 	PID_Init(MOTOR1, Coff_MOTOR);
-	Coff_MOTOR.Kp = 15.0;
-	Coff_MOTOR.Ki = 0.0;
+	Coff_MOTOR.Kp = 4.5;
+	Coff_MOTOR.Ki = 0.000001;
 	Coff_MOTOR.Kd = 0.0;
 	PID_Init(MOTOR2, Coff_MOTOR);
-	Coff_MOTOR.Kp = 15.0;
-	Coff_MOTOR.Ki = 0.0;
+	Coff_MOTOR.Kp = 6.3;
+	Coff_MOTOR.Ki = 0.000001;
 	Coff_MOTOR.Kd = 0.0;
 	PID_Init(MOTOR3, Coff_MOTOR);
 	
@@ -78,10 +78,9 @@ unsigned char Application_Init(void)
 	Moment_Queue = xQueueCreate(200, sizeof(Moment_Typedef));
 	RxQueue = xQueueCreate(200, sizeof(xData));
 	
-	CAN_CountingSemaphore = xSemaphoreCreateCounting(200, 0);
 	UART_xCountingSemaphore = xSemaphoreCreateCounting(200, 0);
 	
-	if (Pos_Queue != NULL && CanRxQueue != NULL && CAN_CountingSemaphore != NULL &&
+	if (Pos_Queue != NULL && CanRxQueue != NULL  &&
 			Moment_Queue != NULL && UART_xCountingSemaphore != NULL && RxQueue != NULL)
 		return SUCCESS;
 	return ERROR;
@@ -99,7 +98,7 @@ void MOMENT_TASK(void *pvParameters)
 {
 	float Theta[3];
 	float Cordinate[3];
-	float F[3] = {0.0, 0.0, 40.0};
+	float F[3] = {0.0, 0.0, 18.0};
 	float Phi[3];
 	float Moment[3];
 	portBASE_TYPE xStatus;
@@ -108,49 +107,42 @@ void MOMENT_TASK(void *pvParameters)
 	unsigned char Status;
 	while(1)
 	{
-//		xSemaphoreTake(CAN_CountingSemaphore, portMAX_DELAY);
-//		if (uxQueueMessagesWaiting(CanRxQueue) != NULL)
-//		{
-//			xStatus = xQueueReceive(CanRxQueue, &CanReceiveData, 1);
-//			if (xStatus == pdPASS)
-//			{
-//				F[0] = CanReceiveData.Data[1];
-//				F[1] = CanReceiveData.Data[3];
-//				F[2] = CanReceiveData.Data[5];
-//				if (CanReceiveData.Data[0] == 0)
-//					F[0] = -F[0];
-//				if (CanReceiveData.Data[2] == 0)
-//					F[1] = -F[1];
-//				if (CanReceiveData.Data[4] == 0)
-//					F[2] = -F[2];
-//				Theta[0] = ((float)TSVN_QEI_TIM1_Value()*0.9)/7.0;
-//				Theta[1] = ((float)TSVN_QEI_TIM4_Value()*0.9)/7.0;
-//				Theta[2] = ((float)TSVN_QEI_TIM3_Value()*0.9)/7.0;		
-//				Status = (char)Delta_CalcForward(Theta[0], Theta[1], Theta[2], &Cordinate[0], &Cordinate[1], &Cordinate[2]);
-//				if (Status == 0)
-//				{
-//					MomentCalculate(Theta, Phi, Cordinate, F, &Moment);
-//					M.Mx = Moment[0];
-//					M.My = Moment[1];
-//					M.Mz = Moment[2];
-//					xQueueSendToBack(Moment_Queue, &M, 1);
-//				}
-//			}
-//		}	
+		if (uxQueueMessagesWaiting(CanRxQueue) != NULL)
+		{
+			xStatus = xQueueReceive(CanRxQueue, &CanReceiveData, 1);
+			if (xStatus == pdPASS)
+			{
+				F[0] = CanReceiveData.Data[1];
+				F[1] = CanReceiveData.Data[3];
+				F[2] = CanReceiveData.Data[5];
+				if (CanReceiveData.Data[0] == 0)
+					F[0] = -F[0];
+				if (CanReceiveData.Data[2] == 0)
+					F[1] = -F[1];
+				if (CanReceiveData.Data[4] == 0)
+					F[2] = -F[2];
+				F[2] += 18.0;
+			}
+		}
 		Theta[0] = ((float)TSVN_QEI_TIM1_Value()*0.9)/7.0;
 		Theta[1] = ((float)TSVN_QEI_TIM4_Value()*0.9)/7.0;
 		Theta[2] = ((float)TSVN_QEI_TIM3_Value()*0.9)/7.0;		
 		Status = (char)Delta_CalcForward(Theta[0], Theta[1], Theta[2], &Cordinate[0], &Cordinate[1], &Cordinate[2]);
 		if (Status == 0)
 		{
-			Phi[0] = -90.0;
-			Phi[1] = 30.0;
-			Phi[2] = 150;
-			MomentCalculate(Theta, Phi, Cordinate, F, &Moment);
-			M.Mx = Moment[0]*1000.0;
-			M.My = Moment[1]*1000.0;
-			M.Mz = Moment[2]*1000.0;
-			xQueueSendToBack(Moment_Queue, &M, 1);
+			if (Cordinate[0] >= -44.165 && Cordinate[0] <= 44.165 && 
+					Cordinate[1] >= -44.165 && Cordinate[1] <= 44.165 &&
+					Cordinate[2] >= -203.648 && Cordinate[2] <= -115.318)
+			{
+					Phi[0] = -90.0;
+					Phi[1] = 30.0;
+					Phi[2] = 150;
+					MomentCalculate(Theta, Phi, Cordinate, F, &Moment);
+					M.Mx = Moment[0]*1000.0;
+					M.My = Moment[1]*1000.0;
+					M.Mz = Moment[2]*1000.0;
+					xQueueSendToBack(Moment_Queue, &M, 1);
+			}
 		}
 		TSVN_Led_Toggle(LED_D6);
 		vTaskDelay(200);
@@ -255,7 +247,6 @@ void USART1_IRQHandler(void)
     {
       ReceiveData.Value =(unsigned char)USART_ReceiveData(USART1);
       xQueueSendToBackFromISR(RxQueue, &ReceiveData, &xHigherPriorityTaskWoken);
-			xSemaphoreGiveFromISR(UART_xCountingSemaphore, &xHigherPriorityTaskWoken);
 		}
 	portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
 }
@@ -281,7 +272,6 @@ void TIM6_IRQHandler(void)
 		CurentValue_MOTOR[MOTOR2] = AMES_Filter(SEN_MOTOR2) - ACS2_CALIB;
 		while(FIR_CollectData(SEN_MOTOR3,TSVN_ACS712_Read(ACS_3))  != DONE);
 		CurentValue_MOTOR[MOTOR3] = AMES_Filter(SEN_MOTOR3) - ACS3_CALIB;
-		//printf("%0.5f\t%0.5f\t%0.5f\n", CurentValue_MOTOR[MOTOR1], CurentValue_MOTOR[MOTOR2], CurentValue_MOTOR[MOTOR3]);
 		PWM_MOTOR[MOTOR1] = PID_Calculate(MOTOR1, Moments[0], CurentValue_MOTOR[MOTOR1]);
 		if (PWM_MOTOR[MOTOR1] < 0)
 				DIR_Change(MOTOR1, RESERVE);
