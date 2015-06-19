@@ -23,6 +23,7 @@ const float ACS1_CALIB = 0.0f;
 const float ACS2_CALIB = 0.0f;
 const float ACS3_CALIB = 480.0f;
 
+
 //***********************************Global*********************
 
 //**************************************************************
@@ -30,10 +31,8 @@ const float ACS3_CALIB = 480.0f;
 unsigned char Application_Init(void)
 {
 	unsigned int PWM_Max_Value = 0;
-	PIDCoff Coff;
-	Coff.Kp = 20;
-	Coff.Ki = 0.00001;
-	Coff.Kd = 0.000000001;
+	PIDCoff Coff_MOTOR;
+
 	TSVN_FOSC_Init();
 	TSVN_Led_Init(ALL);
 	TSVN_ACS712_Init();
@@ -61,9 +60,18 @@ unsigned char Application_Init(void)
 	PID_WindUp_Init(MOTOR1, PWM_Max_Value);
 	PID_WindUp_Init(MOTOR2, PWM_Max_Value);
 	PID_WindUp_Init(MOTOR3, PWM_Max_Value);
-	PID_Init(MOTOR1, Coff);
-	PID_Init(MOTOR2, Coff);
-	PID_Init(MOTOR3, Coff);
+	Coff_MOTOR.Kp = 12.0;
+	Coff_MOTOR.Ki = 0.0;
+	Coff_MOTOR.Kd = 0.0;
+	PID_Init(MOTOR1, Coff_MOTOR);
+	Coff_MOTOR.Kp = 15.0;
+	Coff_MOTOR.Ki = 0.0;
+	Coff_MOTOR.Kd = 0.0;
+	PID_Init(MOTOR2, Coff_MOTOR);
+	Coff_MOTOR.Kp = 15.0;
+	Coff_MOTOR.Ki = 0.0;
+	Coff_MOTOR.Kd = 0.0;
+	PID_Init(MOTOR3, Coff_MOTOR);
 	
 	Pos_Queue = xQueueCreate(200, sizeof(Pos_TypeDef));
 	CanRxQueue = xQueueCreate(200, sizeof(CanRxMsg));
@@ -91,7 +99,7 @@ void MOMENT_TASK(void *pvParameters)
 {
 	float Theta[3];
 	float Cordinate[3];
-	float F[3] = {0.0, 0.0, 15.0};
+	float F[3] = {0.0, 0.0, 40.0};
 	float Phi[3];
 	float Moment[3];
 	portBASE_TYPE xStatus;
@@ -139,9 +147,9 @@ void MOMENT_TASK(void *pvParameters)
 			Phi[1] = 30.0;
 			Phi[2] = 150;
 			MomentCalculate(Theta, Phi, Cordinate, F, &Moment);
-			M.Mx = Moment[0];
-			M.My = Moment[1];
-			M.Mz = Moment[2];
+			M.Mx = Moment[0]*1000.0;
+			M.My = Moment[1]*1000.0;
+			M.Mz = Moment[2]*1000.0;
 			xQueueSendToBack(Moment_Queue, &M, 1);
 		}
 		TSVN_Led_Toggle(LED_D6);
@@ -273,22 +281,22 @@ void TIM6_IRQHandler(void)
 		CurentValue_MOTOR[MOTOR2] = AMES_Filter(SEN_MOTOR2) - ACS2_CALIB;
 		while(FIR_CollectData(SEN_MOTOR3,TSVN_ACS712_Read(ACS_3))  != DONE);
 		CurentValue_MOTOR[MOTOR3] = AMES_Filter(SEN_MOTOR3) - ACS3_CALIB;
-		printf("%0.5f\t%0.5f\t%0.5f\n", CurentValue_MOTOR[MOTOR1], CurentValue_MOTOR[MOTOR2], CurentValue_MOTOR[MOTOR3]);
-		PWM_MOTOR[MOTOR1] = PID_Calculate(MOTOR1, 600.0, CurentValue_MOTOR[MOTOR1]);
+		//printf("%0.5f\t%0.5f\t%0.5f\n", CurentValue_MOTOR[MOTOR1], CurentValue_MOTOR[MOTOR2], CurentValue_MOTOR[MOTOR3]);
+		PWM_MOTOR[MOTOR1] = PID_Calculate(MOTOR1, Moments[0], CurentValue_MOTOR[MOTOR1]);
 		if (PWM_MOTOR[MOTOR1] < 0)
 				DIR_Change(MOTOR1, RESERVE);
 		else
 				DIR_Change(MOTOR1, FORWARD);
 		TSVN_PWM_TIM5_Set_Duty(abs(PWM_MOTOR[MOTOR1]), MOTOR1_PWM);
 		
-		PWM_MOTOR[MOTOR2] = PID_Calculate(MOTOR2, 600.0, CurentValue_MOTOR[MOTOR2]);
+		PWM_MOTOR[MOTOR2] = PID_Calculate(MOTOR2, Moments[1], CurentValue_MOTOR[MOTOR2]);
 		if (PWM_MOTOR[MOTOR2] < 0)
 				DIR_Change(MOTOR2, RESERVE);
 		else
 				DIR_Change(MOTOR2, FORWARD);
 		TSVN_PWM_TIM5_Set_Duty(abs(PWM_MOTOR[MOTOR2]), MOTOR2_PWM);
 		
-		PWM_MOTOR[MOTOR3] = PID_Calculate(MOTOR3, 600.0, CurentValue_MOTOR[MOTOR3]);
+		PWM_MOTOR[MOTOR3] = PID_Calculate(MOTOR3, Moments[2], CurentValue_MOTOR[MOTOR3]);
 		
 		if (PWM_MOTOR[MOTOR3] < 0)
 				DIR_Change(MOTOR3, RESERVE);
