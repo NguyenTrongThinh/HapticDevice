@@ -51,7 +51,7 @@ void TSVN_CAN_Init(void)
 	CAN_ITConfig(CAN1,CAN_IT_FMP0, ENABLE);  
 	CAN_Init(CAN1, &CAN_InitStructure);
 	
-	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 	NVIC_InitStructure.NVIC_IRQChannel = CAN1_RX0_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x02;
