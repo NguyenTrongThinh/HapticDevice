@@ -1,3 +1,10 @@
+/****************************************************************************/
+/*Delta Matrix library.																														*/
+/*This library is copyright and Protected by AMES lab		    								*/
+/*Date: 20/06/2015																													*/
+/*Author: Thinh Nguyen										    															*/ 																
+/****************************************************************************/
+
 #ifndef __AMES_MATRIX_H__
 	#define __AMES_MATRIX_H__
 #ifdef __cplusplus

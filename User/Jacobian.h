@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*Delta Robot Jacobian library.																											*/
+/*Delta Robot Jacobian library.																							*/
 /*This library is copyright and Protected by AMES lab		    								*/
 /*Date: 08/05/2015																													*/
 /*Author: Thinh Nguyen										    															*/ 																
