@@ -23,9 +23,9 @@ const float ACS2_CALIB = 0.0f;
 const float ACS3_CALIB = 700.0f;
 
 
-//***********************************Global*********************
+//*******************Global*********************
 
-//**************************************************************
+//**********************************************
 
 
 unsigned char Application_Init(void)
@@ -157,7 +157,7 @@ void TRANSFER_TASK(void *pvParameters)
 		xSemaphoreTake(UART_xCountingSemaphore, portMAX_DELAY);
 		if (uxQueueMessagesWaiting(RxQueue) != NULL)
 		{
-			xStatus = xQueueReceive(RxQueue, &ReadValue, 0);
+			xStatus = xQueueReceive(RxQueue, &ReadValue, 1);
 			if (xStatus == pdPASS)
 			{
 				vTaskSuspendAll();

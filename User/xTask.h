@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*Delta Robot task library.																											*/
+/*Delta Robot task library.																									*/
 /*This library is copyright and Protected by AMES lab		    								*/
 /*Date: 20/06/2015																													*/
 /*Author: Thinh Nguyen										    															*/ 																
@@ -22,9 +22,9 @@
 #include <AMES_PID.h>
 #include <AMES_PWM.h>
 
-#define POS_TASK_STACK_SIZE				(configMINIMAL_STACK_SIZE)
-#define TRANSFER_TASK_STACK_SIZE	(configMINIMAL_STACK_SIZE)
-#define MOMENT_TASK_STACK_SIZE		(configMINIMAL_STACK_SIZE + 128)
+#define POS_TASK_STACK_SIZE					(configMINIMAL_STACK_SIZE)
+#define TRANSFER_TASK_STACK_SIZE		(configMINIMAL_STACK_SIZE)
+#define MOMENT_TASK_STACK_SIZE			(configMINIMAL_STACK_SIZE + 128)
 
 #define POS_TASK_PRIORITY						(tskIDLE_PRIORITY + 1)
 #define TRANSFER_TASK_PRIORITY			(tskIDLE_PRIORITY + 1)
