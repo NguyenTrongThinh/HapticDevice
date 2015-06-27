@@ -18,9 +18,9 @@ enum  {MOTOR1 = 0x00, MOTOR2, MOTOR3};
 enum  {RESERVE, FORWARD};
 enum  {USART_ID};
 
-const float ACS1_CALIB = 0.0f;
+const float ACS1_CALIB = 100.0f;
 const float ACS2_CALIB = 0.0f;
-const float ACS3_CALIB = 700.0f;
+const float ACS3_CALIB = 850.0f;
 
 
 //*******************Global*********************
@@ -60,17 +60,17 @@ unsigned char Application_Init(void)
 	PID_WindUp_Init(MOTOR1, PWM_Max_Value);
 	PID_WindUp_Init(MOTOR2, PWM_Max_Value);
 	PID_WindUp_Init(MOTOR3, PWM_Max_Value);
-	Coff_MOTOR.Kp = 4.5;
-	Coff_MOTOR.Ki = 0.000001;
-	Coff_MOTOR.Kd = 0.0;
+	Coff_MOTOR.Kp = 6.5;
+	Coff_MOTOR.Ki = 0.00001;
+	Coff_MOTOR.Kd = 0.00000001;
 	PID_Init(MOTOR1, Coff_MOTOR);
-	Coff_MOTOR.Kp = 4.5;
-	Coff_MOTOR.Ki = 0.000001;
-	Coff_MOTOR.Kd = 0.0;
+	Coff_MOTOR.Kp = 6.5;
+	Coff_MOTOR.Ki = 0.00001;
+	Coff_MOTOR.Kd = 0.00000001;
 	PID_Init(MOTOR2, Coff_MOTOR);
-	Coff_MOTOR.Kp = 6.3;
-	Coff_MOTOR.Ki = 0.000001;
-	Coff_MOTOR.Kd = 0.0;
+	Coff_MOTOR.Kp = 6.5;
+	Coff_MOTOR.Ki = 0.00001;
+	Coff_MOTOR.Kd = 0.00000001;
 	PID_Init(MOTOR3, Coff_MOTOR);
 	
 	Pos_Queue = xQueueCreate(200, sizeof(Pos_TypeDef));
@@ -98,7 +98,7 @@ void MOMENT_TASK(void *pvParameters)
 {
 	float Theta[3];
 	float Cordinate[3];
-	float F[3] = {0.0, 0.0, 18.0};
+	float F[3] = {0.0, 0.0, 20.0};
 	float Phi[3];
 	float Moment[3];
 	portBASE_TYPE xStatus;
