@@ -152,6 +152,8 @@ void TRANSFER_TASK(void *pvParameters)
 {
 	portBASE_TYPE xStatus;
 	xData ReadValue;
+	char *Cmd;
+	PIDCoff PID_Coff;
 	while(1)
 	{	
 		xSemaphoreTake(UART_xCountingSemaphore, portMAX_DELAY);
@@ -160,11 +162,52 @@ void TRANSFER_TASK(void *pvParameters)
 			xStatus = xQueueReceive(RxQueue, &ReadValue, 1);
 			if (xStatus == pdPASS)
 			{
-				vTaskSuspendAll();
-				printf("ID: %d\n", ReadValue.ID);
-				printf("Value: %c\n", ReadValue.Value);
-				TSVN_Led_Toggle(LED_D5);
-				xTaskResumeAll();
+				if (ReadValue.ID == USART_ID)
+					{
+						if (TSVN_USART_Create_Frame(ReadValue.Value) == End)
+						{
+							Cmd = TSVN_Get_Parameters(1, TSVN_USART_Get_Frame());
+							if (!strcmp(Cmd, "PID1"))
+							{
+								Cmd = TSVN_Get_Parameters(2, TSVN_USART_Get_Frame());
+								PID_Coff.Kp = atof(Cmd);
+								Cmd = TSVN_Get_Parameters(3, TSVN_USART_Get_Frame());
+								PID_Coff.Ki = atof(Cmd);
+								Cmd = TSVN_Get_Parameters(4, TSVN_USART_Get_Frame());
+								PID_Coff.Kd = atof(Cmd);
+								PID_Init(MOTOR1, PID_Coff);
+								vTaskSuspendAll();
+								printf("PID MOTOR1: %0.5f\t%0.5f\t%0.5f\n", PID_Coff.Kp, PID_Coff.Ki, PID_Coff.Kd);
+								xTaskResumeAll();
+							}
+							else if (!strcmp(Cmd, "PID2"))
+							{
+								Cmd = TSVN_Get_Parameters(2, TSVN_USART_Get_Frame());
+								PID_Coff.Kp = atof(Cmd);
+								Cmd = TSVN_Get_Parameters(3, TSVN_USART_Get_Frame());
+								PID_Coff.Ki = atof(Cmd);
+								Cmd = TSVN_Get_Parameters(4, TSVN_USART_Get_Frame());
+								PID_Coff.Kd = atof(Cmd);
+								PID_Init(MOTOR2, PID_Coff);
+								vTaskSuspendAll();
+								printf("PID MOTOR2: %0.5f\t%0.5f\t%0.5f\n", PID_Coff.Kp, PID_Coff.Ki, PID_Coff.Kd);
+								xTaskResumeAll();
+							}
+							else if (!strcmp(Cmd, "PID3"))
+							{
+								Cmd = TSVN_Get_Parameters(2, TSVN_USART_Get_Frame());
+								PID_Coff.Kp = atof(Cmd);
+								Cmd = TSVN_Get_Parameters(3, TSVN_USART_Get_Frame());
+								PID_Coff.Ki = atof(Cmd);
+								Cmd = TSVN_Get_Parameters(4, TSVN_USART_Get_Frame());
+								PID_Coff.Kd = atof(Cmd);
+								PID_Init(MOTOR3, PID_Coff);
+								vTaskSuspendAll();
+								printf("PID MOTOR3: %0.5f\t%0.5f\t%0.5f\n", PID_Coff.Kp, PID_Coff.Ki, PID_Coff.Kd);
+								xTaskResumeAll();
+							}
+						}		
+					}
 			}
 		}
 	}
@@ -264,9 +307,15 @@ void TIM6_IRQHandler(void)
 	static Moment_Typedef Moment;
 	static float Moments[3];
 	static long PWM_MOTOR[3]; 
+	static uint32_t Count;
 	if(TIM_GetITStatus(TIM6, TIM_IT_Update) != RESET)
 	{
 		TIM_ClearITPendingBit(TIM6, TIM_IT_Update);
+		if (Count++ >= 10)
+		{
+			TSVN_Led_Toggle(LED_D7);
+			Count = 0 ;
+		}
 		while(FIR_CollectData(SEN_MOTOR1, TSVN_ACS712_Read(ACS_1)) != DONE);
 		CurentValue_MOTOR[MOTOR1] = AMES_Filter(SEN_MOTOR1) - ACS1_CALIB;
 		while(FIR_CollectData(SEN_MOTOR2 ,TSVN_ACS712_Read(ACS_2)) != DONE);

@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*CAN library.																														*/
+/*CANOpen library.																														*/
 /*This library is copyright and Protected by AMES lab		    								*/
 /*Date: 12/03/2015																													*/
 /*Author: Thinh Nguyen										    															*/ 																

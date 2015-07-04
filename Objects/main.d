@@ -60,3 +60,4 @@
 .\objects\main.o: .\Drivers\AMES_TIMER.h
 .\objects\main.o: .\Drivers\AMES_PID.h
 .\objects\main.o: .\Drivers\AMES_PWM.h
+.\objects\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
