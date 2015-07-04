@@ -1,6 +1,5 @@
 #include <AMES_CAN.h>
 
-//CanTxMsg TxMessage;
 
 void TSVN_CAN_Init(void)
 {
@@ -32,7 +31,7 @@ void TSVN_CAN_Init(void)
   CAN_InitStructure.CAN_RFLM = DISABLE;
   CAN_InitStructure.CAN_TXFP = DISABLE;
   CAN_InitStructure.CAN_Mode = CAN_Mode_Normal;
-	
+	//CAN_BitRate = CAN_CLK / (CAN_Prescaler * (CAN_SJW + CAN_BS1 + CAN_BS2))
 	CAN_InitStructure.CAN_SJW = CAN_SJW_1tq;
   CAN_InitStructure.CAN_BS1 = CAN_BS1_3tq;  //3
   CAN_InitStructure.CAN_BS2 = CAN_BS2_5tq;	//5
@@ -53,11 +52,10 @@ void TSVN_CAN_Init(void)
 	
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 	NVIC_InitStructure.NVIC_IRQChannel = CAN1_RX0_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x02;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x02;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x00;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
-	
 }
 
 void TSVN_CAN_Deinit(void)

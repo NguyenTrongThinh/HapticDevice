@@ -43,7 +43,7 @@ unsigned char Application_Init(void)
 	
 	TSVN_CAN_Init();
 	TSVN_USART_Init();
-	TSVN_TIM6_Init(1000);
+	TSVN_TIM6_Init(2000);
 	
 	FIR_Init();
 	
@@ -250,11 +250,11 @@ void USART1_IRQHandler(void)
 	static portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
 	ReceiveData.ID = USART_ID;
 	if (USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
-    {
-      ReceiveData.Value =(unsigned char)USART_ReceiveData(USART1);
-      xQueueSendToBackFromISR(RxQueue, &ReceiveData, &xHigherPriorityTaskWoken);
-			xSemaphoreGiveFromISR(UART_xCountingSemaphore, &xHigherPriorityTaskWoken);
-		}
+	{
+		ReceiveData.Value =(unsigned char)USART_ReceiveData(USART1);
+		xQueueSendToBackFromISR(RxQueue, &ReceiveData, &xHigherPriorityTaskWoken);
+		xSemaphoreGiveFromISR(UART_xCountingSemaphore, &xHigherPriorityTaskWoken);
+	}
 	portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
 }
 void TIM6_IRQHandler(void)
@@ -305,6 +305,7 @@ void TIM6_IRQHandler(void)
 				Moments[2] = Moment.Mz;
 			}
 		}
+		
 	}
 }
 

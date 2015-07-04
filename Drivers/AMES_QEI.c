@@ -43,10 +43,10 @@ void TSVN_QEI_TIM1_Init(unsigned int MAX_CNT)
   TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE);
 	TIM_ClearITPendingBit(TIM1, TIM_IT_Update);
 	
-	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
   NVIC_InitStructure.NVIC_IRQChannel = TIM1_UP_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x00;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
 	TIM_Cmd(TIM1, ENABLE);

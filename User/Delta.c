@@ -13,7 +13,6 @@ const float tan60 = 1.732050808;
 const float sin30 = 0.5;
 const float tan30 = 0.5773502692;
 
-
 int Delta_CalcForward(float theta1, float theta2, float theta3, float *x0, float *y0, float *z0) 
 {
   float t, dtr, y1, z1;
