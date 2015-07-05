@@ -29,7 +29,7 @@ const float ACS3_CALIB =  820.10095f;
 unsigned char Application_Init(void)
 {
 	unsigned int PWM_Max_Value = 0;
-	PIDCoff Coff_MOTOR = {0, 0, 0};
+	PIDCoff Coff_MOTOR = {4.0, 0.01, 0.000001};
 
 	TSVN_FOSC_Init();
 	TSVN_Led_Init(ALL);
@@ -58,6 +58,7 @@ unsigned char Application_Init(void)
 	PID_WindUp_Init(MOTOR1, PWM_Max_Value);
 	PID_WindUp_Init(MOTOR2, PWM_Max_Value);
 	PID_WindUp_Init(MOTOR3, PWM_Max_Value);
+	
 	PID_Init(MOTOR1, Coff_MOTOR);
 	PID_Init(MOTOR2, Coff_MOTOR);
 	PID_Init(MOTOR3, Coff_MOTOR);
@@ -86,7 +87,7 @@ void MOMENT_TASK(void *pvParameters)
 {
 	float Theta[3];
 	float Cordinate[3];
-	float F[3] = {0.0, 0.0, 20.0};
+	float F[3] = {0.0, 0.0, 10.0};
 	float Phi[3];
 	float Moment[3];
 	portBASE_TYPE xStatus;
@@ -109,7 +110,7 @@ void MOMENT_TASK(void *pvParameters)
 					F[1] = -F[1];
 				if (CanReceiveData.Data[4] == 0)
 					F[2] = -F[2];
-				F[2] += 18.0;
+				F[2] += 6;
 			}
 		}
 		Theta[0] = ((float)TSVN_QEI_TIM1_Value()*0.9)/7.0;
@@ -126,9 +127,9 @@ void MOMENT_TASK(void *pvParameters)
 					Phi[1] = 30.0;
 					Phi[2] = 150;
 					MomentCalculate(Theta, Phi, Cordinate, F, &Moment);
-					M.Mx = Moment[0]*2000.0;
-					M.My = Moment[1]*2000.0;
-					M.Mz = Moment[2]*2000.0;
+				  M.Mx = (Moment[0]*2000.0 > 550.0)?550.0:Moment[0]*2000.0;
+					M.My = (Moment[1]*2000.0 > 550.0)?550.0:Moment[1]*2000.0;
+					M.Mz = (Moment[2]*2000.0 > 550.0)?550.0:Moment[2]*2000.0;
 					xQueueSendToBack(Moment_Queue, &M, 1);
 			}
 		}
@@ -296,11 +297,11 @@ void TIM6_IRQHandler(void)
 	if(TIM_GetITStatus(TIM6, TIM_IT_Update) != RESET)
 	{
 		TIM_ClearITPendingBit(TIM6, TIM_IT_Update);
-		while(FIR_CollectData(SEN_MOTOR1, TSVN_ACS712_Read(ACS_1)) != DONE);
+		FIR_CollectData(SEN_MOTOR1, TSVN_ACS712_Read(ACS_1));
 		CurentValue_MOTOR[MOTOR1] = AMES_Filter(SEN_MOTOR1) - ACS1_CALIB;
-		while(FIR_CollectData(SEN_MOTOR2 ,TSVN_ACS712_Read(ACS_2)) != DONE);
+		FIR_CollectData(SEN_MOTOR2 ,TSVN_ACS712_Read(ACS_2));
 		CurentValue_MOTOR[MOTOR2] = AMES_Filter(SEN_MOTOR2) - ACS2_CALIB;
-		while(FIR_CollectData(SEN_MOTOR3,TSVN_ACS712_Read(ACS_3))  != DONE);
+		FIR_CollectData(SEN_MOTOR3,TSVN_ACS712_Read(ACS_3));
 		CurentValue_MOTOR[MOTOR3] = AMES_Filter(SEN_MOTOR3) - ACS3_CALIB;
 		PWM_MOTOR[MOTOR1] = PID_Calculate(MOTOR1, Moments[0], CurentValue_MOTOR[MOTOR1]);
 		if (PWM_MOTOR[MOTOR1] < 0)
