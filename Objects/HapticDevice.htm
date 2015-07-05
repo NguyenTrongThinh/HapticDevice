@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Objects\HapticDevice.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\HapticDevice.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5050041: Last Updated: Sat Jul 04 19:08:04 2015
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5050041: Last Updated: Sun Jul 05 12:51:21 2015
 <BR><P>
 <H3>Maximum Stack Usage =        752 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -327,7 +327,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> entry9a.o(.ARM.Collect$$$$0000000B)
 </UL>
-<P><STRONG><a name="[79]"></a>Application_Init</STRONG> (Thumb, 278 bytes, Stack size 16 bytes, xtask.o(.text))
+<P><STRONG><a name="[79]"></a>Application_Init</STRONG> (Thumb, 274 bytes, Stack size 16 bytes, xtask.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 104<LI>Call Chain = Application_Init &rArr; xQueueCreateCountingSemaphore &rArr; pvPortMalloc &rArr; xTaskResumeAll &rArr; vPortEnterCritical
 </UL>
 <BR>[Calls]<UL><LI><a href="#[8c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericCreate
@@ -378,7 +378,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> xtask.o(.text)
 </UL>
-<P><STRONG><a name="[97]"></a>TRANSFER_TASK</STRONG> (Thumb, 672 bytes, Stack size 24 bytes, xtask.o(.text))
+<P><STRONG><a name="[97]"></a>TRANSFER_TASK</STRONG> (Thumb, 688 bytes, Stack size 24 bytes, xtask.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 248<LI>Call Chain = TRANSFER_TASK &rArr; atof &rArr; __strtod_int &rArr; _local_sscanf &rArr; _scanf_real
 </UL>
 <BR>[Calls]<UL><LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskResumeAll
@@ -446,13 +446,12 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f10x_cl.o(RESET)
 </UL>
-<P><STRONG><a name="[39]"></a>TIM6_IRQHandler</STRONG> (Thumb, 546 bytes, Stack size 40 bytes, xtask.o(.text))
-<BR><BR>[Stack]<UL><LI>Max Depth = 168<LI>Call Chain = TIM6_IRQHandler &rArr; PID_Calculate &rArr; __aeabi_drsub &rArr; __aeabi_dadd &rArr; _double_epilogue &rArr; _double_round
+<P><STRONG><a name="[39]"></a>TIM6_IRQHandler</STRONG> (Thumb, 428 bytes, Stack size 32 bytes, xtask.o(.text))
+<BR><BR>[Stack]<UL><LI>Max Depth = 160<LI>Call Chain = TIM6_IRQHandler &rArr; PID_Calculate &rArr; __aeabi_drsub &rArr; __aeabi_dadd &rArr; _double_epilogue &rArr; _double_round
 </UL>
 <BR>[Calls]<UL><LI><a href="#[b2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueReceiveFromISR
 <LI><a href="#[b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uxQueueMessagesWaitingFromISR
 <LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_PWM_TIM5_Set_Duty
-<LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_Led_Toggle
 <LI><a href="#[ad]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_ACS712_Read
 <LI><a href="#[ab]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_GetITStatus
 <LI><a href="#[ac]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_ClearITPendingBit
@@ -1175,8 +1174,7 @@ Global Symbols
 <BR><BR>[Calls]<UL><LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_SetBits
 <LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_ResetBits
 </UL>
-<BR>[Called By]<UL><LI><a href="#[39]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM6_IRQHandler
-<LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;POS_TASK
+<BR>[Called By]<UL><LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;POS_TASK
 <LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MOMENT_TASK
 </UL>
 

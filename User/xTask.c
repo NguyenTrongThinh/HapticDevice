@@ -18,20 +18,18 @@ enum  {MOTOR1 = 0x00, MOTOR2, MOTOR3};
 enum  {RESERVE, FORWARD};
 enum  {USART_ID};
 
-const float ACS1_CALIB = 100.0f;
-const float ACS2_CALIB = 0.0f;
-const float ACS3_CALIB = 850.0f;
-
+const float ACS1_CALIB = -168.57994f;
+const float ACS2_CALIB = -196.76501f;
+const float ACS3_CALIB =  820.10095f;
 
 //*******************Global*********************
 
 //**********************************************
 
-
 unsigned char Application_Init(void)
 {
 	unsigned int PWM_Max_Value = 0;
-	PIDCoff Coff_MOTOR;
+	PIDCoff Coff_MOTOR = {0, 0, 0};
 
 	TSVN_FOSC_Init();
 	TSVN_Led_Init(ALL);
@@ -60,19 +58,9 @@ unsigned char Application_Init(void)
 	PID_WindUp_Init(MOTOR1, PWM_Max_Value);
 	PID_WindUp_Init(MOTOR2, PWM_Max_Value);
 	PID_WindUp_Init(MOTOR3, PWM_Max_Value);
-	Coff_MOTOR.Kp = 6.5;
-	Coff_MOTOR.Ki = 0.00001;
-	Coff_MOTOR.Kd = 0.00000001;
 	PID_Init(MOTOR1, Coff_MOTOR);
-	Coff_MOTOR.Kp = 6.5;
-	Coff_MOTOR.Ki = 0.00001;
-	Coff_MOTOR.Kd = 0.00000001;
 	PID_Init(MOTOR2, Coff_MOTOR);
-	Coff_MOTOR.Kp = 6.5;
-	Coff_MOTOR.Ki = 0.00001;
-	Coff_MOTOR.Kd = 0.00000001;
 	PID_Init(MOTOR3, Coff_MOTOR);
-	
 	Pos_Queue = xQueueCreate(200, sizeof(Pos_TypeDef));
 	CanRxQueue = xQueueCreate(200, sizeof(CanRxMsg));
 	Moment_Queue = xQueueCreate(200, sizeof(Moment_Typedef));
@@ -138,9 +126,9 @@ void MOMENT_TASK(void *pvParameters)
 					Phi[1] = 30.0;
 					Phi[2] = 150;
 					MomentCalculate(Theta, Phi, Cordinate, F, &Moment);
-					M.Mx = Moment[0]*1000.0;
-					M.My = Moment[1]*1000.0;
-					M.Mz = Moment[2]*1000.0;
+					M.Mx = Moment[0]*2000.0;
+					M.My = Moment[1]*2000.0;
+					M.Mz = Moment[2]*2000.0;
 					xQueueSendToBack(Moment_Queue, &M, 1);
 			}
 		}
@@ -219,12 +207,10 @@ void POS_TASK(void *pvParameters)
 	Pos_TypeDef Pos;
 	char Status = 0;
 	CanTxMsg CanSendData;
-	
 	CanSendData.StdId = CAN_MASTER_STD_ID;
 	CanSendData.IDE = 	CAN_ID_STD;
 	CanSendData.RTR = 	CAN_RTR_DATA;
 	CanSendData.DLC = 	CAN_DATA_LENGTH;
-	
 	while(1)
 	{
 		Theta[0] = ((float)TSVN_QEI_TIM1_Value()*0.9)/7.0;
@@ -307,15 +293,9 @@ void TIM6_IRQHandler(void)
 	static Moment_Typedef Moment;
 	static float Moments[3];
 	static long PWM_MOTOR[3]; 
-	static uint32_t Count;
 	if(TIM_GetITStatus(TIM6, TIM_IT_Update) != RESET)
 	{
 		TIM_ClearITPendingBit(TIM6, TIM_IT_Update);
-		if (Count++ >= 10)
-		{
-			TSVN_Led_Toggle(LED_D7);
-			Count = 0 ;
-		}
 		while(FIR_CollectData(SEN_MOTOR1, TSVN_ACS712_Read(ACS_1)) != DONE);
 		CurentValue_MOTOR[MOTOR1] = AMES_Filter(SEN_MOTOR1) - ACS1_CALIB;
 		while(FIR_CollectData(SEN_MOTOR2 ,TSVN_ACS712_Read(ACS_2)) != DONE);
