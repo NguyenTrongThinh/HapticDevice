@@ -18,9 +18,9 @@ enum  {MOTOR1 = 0x00, MOTOR2, MOTOR3};
 enum  {RESERVE, FORWARD};
 enum  {USART_ID};
 
-const float ACS1_CALIB = -168.57994f;
-const float ACS2_CALIB = -196.76501f;
-const float ACS3_CALIB =  820.10095f;
+float ACS1_CALIB = -100.0f;
+float ACS2_CALIB = -100.0f;
+float ACS3_CALIB =  790.0f;
 
 //*******************Global*********************
 
@@ -41,7 +41,7 @@ unsigned char Application_Init(void)
 	
 	TSVN_CAN_Init();
 	TSVN_USART_Init();
-	TSVN_TIM6_Init(2000);
+	
 	
 	FIR_Init();
 	
@@ -62,6 +62,8 @@ unsigned char Application_Init(void)
 	PID_Init(MOTOR1, Coff_MOTOR);
 	PID_Init(MOTOR2, Coff_MOTOR);
 	PID_Init(MOTOR3, Coff_MOTOR);
+	
+	TSVN_TIM6_Init(2000);
 	Pos_Queue = xQueueCreate(200, sizeof(Pos_TypeDef));
 	CanRxQueue = xQueueCreate(200, sizeof(CanRxMsg));
 	Moment_Queue = xQueueCreate(200, sizeof(Moment_Typedef));
@@ -87,7 +89,7 @@ void MOMENT_TASK(void *pvParameters)
 {
 	float Theta[3];
 	float Cordinate[3];
-	float F[3] = {0.0, 0.0, 10.0};
+	float F[3] = {0.0, 0.0, 0.0};
 	float Phi[3];
 	float Moment[3];
 	portBASE_TYPE xStatus;
@@ -143,6 +145,7 @@ void TRANSFER_TASK(void *pvParameters)
 	xData ReadValue;
 	char *Cmd;
 	PIDCoff PID_Coff;
+	float CurentValue_MOTOR[3];
 	while(1)
 	{	
 		xSemaphoreTake(UART_xCountingSemaphore, portMAX_DELAY);
@@ -193,6 +196,24 @@ void TRANSFER_TASK(void *pvParameters)
 								PID_Init(MOTOR3, PID_Coff);
 								vTaskSuspendAll();
 								printf("PID MOTOR3: %0.5f\t%0.5f\t%0.5f\n", PID_Coff.Kp, PID_Coff.Ki, PID_Coff.Kd);
+								xTaskResumeAll();
+							}
+							else if (!strcmp(Cmd, "AUTO"))
+							{
+								vTaskSuspendAll();
+								CurentValue_MOTOR[MOTOR1] = 0;
+								CurentValue_MOTOR[MOTOR2] = 0;
+								CurentValue_MOTOR[MOTOR3] = 0;
+								while(FIR_CollectData(SEN_MOTOR1, TSVN_ACS712_Read(ACS_1)) != DONE);
+								CurentValue_MOTOR[MOTOR1] = AMES_Filter(SEN_MOTOR1);
+								while(FIR_CollectData(SEN_MOTOR2 ,TSVN_ACS712_Read(ACS_2)) != DONE);
+								CurentValue_MOTOR[MOTOR2] = AMES_Filter(SEN_MOTOR2);
+								while(FIR_CollectData(SEN_MOTOR3,TSVN_ACS712_Read(ACS_3))  != DONE);
+								CurentValue_MOTOR[MOTOR3] = AMES_Filter(SEN_MOTOR3);
+								ACS1_CALIB = CurentValue_MOTOR[MOTOR1];
+								ACS2_CALIB = CurentValue_MOTOR[MOTOR2];
+								ACS3_CALIB = CurentValue_MOTOR[MOTOR3];
+								printf("Calib: %0.5f\t%0.5f\t%0.5f\n", ACS1_CALIB, ACS2_CALIB, ACS3_CALIB);
 								xTaskResumeAll();
 							}
 						}		
