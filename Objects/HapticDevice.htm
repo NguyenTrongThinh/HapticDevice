@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Objects\HapticDevice.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\HapticDevice.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5050041: Last Updated: Fri Jul 10 15:31:24 2015
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5050041: Last Updated: Fri Jul 10 17:17:50 2015
 <BR><P>
 <H3>Maximum Stack Usage =        736 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -327,7 +327,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> entry9a.o(.ARM.Collect$$$$0000000B)
 </UL>
-<P><STRONG><a name="[79]"></a>Application_Init</STRONG> (Thumb, 250 bytes, Stack size 16 bytes, xtask.o(.text))
+<P><STRONG><a name="[79]"></a>Application_Init</STRONG> (Thumb, 284 bytes, Stack size 16 bytes, xtask.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 104<LI>Call Chain = Application_Init &rArr; xQueueCreateCountingSemaphore &rArr; pvPortMalloc &rArr; xTaskResumeAll &rArr; vPortEnterCritical
 </UL>
 <BR>[Calls]<UL><LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericCreate
@@ -353,7 +353,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[47]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[8d]"></a>MOMENT_TASK</STRONG> (Thumb, 406 bytes, Stack size 104 bytes, xtask.o(.text))
+<P><STRONG><a name="[8d]"></a>MOMENT_TASK</STRONG> (Thumb, 404 bytes, Stack size 104 bytes, xtask.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 736<LI>Call Chain = MOMENT_TASK &rArr; MomentCalculate &rArr; JacobianCalAngle &rArr; sin &rArr; __ieee754_rem_pio2 &rArr; __aeabi_drsub &rArr; __aeabi_dadd &rArr; _double_epilogue &rArr; _double_round
 </UL>
 <BR>[Calls]<UL><LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
@@ -373,34 +373,35 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> xtask.o(.text)
 </UL>
-<P><STRONG><a name="[95]"></a>TRANSFER_TASK</STRONG> (Thumb, 938 bytes, Stack size 24 bytes, xtask.o(.text))
-<BR><BR>[Stack]<UL><LI>Max Depth = 248<LI>Call Chain = TRANSFER_TASK &rArr; atof &rArr; __strtod_int &rArr; _local_sscanf &rArr; _scanf_real
+<P><STRONG><a name="[95]"></a>TRANSFER_TASK</STRONG> (Thumb, 1028 bytes, Stack size 32 bytes, xtask.o(.text))
+<BR><BR>[Stack]<UL><LI>Max Depth = 256<LI>Call Chain = TRANSFER_TASK &rArr; atof &rArr; __strtod_int &rArr; _local_sscanf &rArr; _scanf_real
 </UL>
 <BR>[Calls]<UL><LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskResumeAll
+<LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
 <LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
-<LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskSuspendAll
+<LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskSuspendAll
 <LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uxQueueMessagesWaiting
 <LI><a href="#[99]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_USART_Get_Frame
 <LI><a href="#[98]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_USART_Create_Frame
 <LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_Get_Parameters
-<LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_ACS712_Read
+<LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_ACS712_Read
 <LI><a href="#[89]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PID_Init
 <LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_f2d
 <LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dadd
 <LI><a href="#[5f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_d2f
 <LI><a href="#[59]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_fdiv
 <LI><a href="#[9b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strcmp
-<LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;atof
+<LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;atof
 <LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> xtask.o(.text)
 </UL>
-<P><STRONG><a name="[a1]"></a>POS_TASK</STRONG> (Thumb, 190 bytes, Stack size 24 bytes, xtask.o(.text))
+<P><STRONG><a name="[a1]"></a>POS_TASK</STRONG> (Thumb, 202 bytes, Stack size 24 bytes, xtask.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 392<LI>Call Chain = POS_TASK &rArr; Delta_CalcForward &rArr; sin &rArr; __ieee754_rem_pio2 &rArr; __aeabi_drsub &rArr; __aeabi_dadd &rArr; _double_epilogue &rArr; _double_round
 </UL>
 <BR>[Calls]<UL><LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskResumeAll
-<LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskSuspendAll
-<LI><a href="#[94]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelay
+<LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
+<LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskSuspendAll
 <LI><a href="#[8f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM4_Value
 <LI><a href="#[90]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM3_Value
 <LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_QEI_TIM1_Value
@@ -435,13 +436,13 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f10x_cl.o(RESET)
 </UL>
-<P><STRONG><a name="[39]"></a>TIM6_IRQHandler</STRONG> (Thumb, 446 bytes, Stack size 40 bytes, xtask.o(.text))
+<P><STRONG><a name="[39]"></a>TIM6_IRQHandler</STRONG> (Thumb, 618 bytes, Stack size 40 bytes, xtask.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 168<LI>Call Chain = TIM6_IRQHandler &rArr; PID_Calculate &rArr; __aeabi_drsub &rArr; __aeabi_dadd &rArr; _double_epilogue &rArr; _double_round
 </UL>
 <BR>[Calls]<UL><LI><a href="#[ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueReceiveFromISR
 <LI><a href="#[ad]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uxQueueMessagesWaitingFromISR
 <LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_PWM_TIM5_Set_Duty
-<LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_ACS712_Read
+<LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_ACS712_Read
 <LI><a href="#[a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_GetITStatus
 <LI><a href="#[a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_ClearITPendingBit
 <LI><a href="#[ac]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PID_Calculate
@@ -556,10 +557,11 @@ Global Symbols
 <LI><a href="#[b2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPortExitCritical
 <LI><a href="#[b0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPortEnterCritical
 <LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskResumeAll
-<LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskSuspendAll
+<LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskSuspendAll
 <LI><a href="#[b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
 </UL>
-<BR>[Called By]<UL><LI><a href="#[8d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MOMENT_TASK
+<BR>[Called By]<UL><LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TRANSFER_TASK
+<LI><a href="#[8d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MOMENT_TASK
 </UL>
 
 <P><STRONG><a name="[a6]"></a>xQueueGenericSendFromISR</STRONG> (Thumb, 174 bytes, Stack size 24 bytes, queue.o(.text))
@@ -595,10 +597,11 @@ Global Symbols
 <LI><a href="#[b2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPortExitCritical
 <LI><a href="#[b0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPortEnterCritical
 <LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskResumeAll
-<LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskSuspendAll
+<LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskSuspendAll
 <LI><a href="#[b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
 </UL>
-<BR>[Called By]<UL><LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TRANSFER_TASK
+<BR>[Called By]<UL><LI><a href="#[a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;POS_TASK
+<LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TRANSFER_TASK
 </UL>
 
 <P><STRONG><a name="[ae]"></a>xQueueReceiveFromISR</STRONG> (Thumb, 114 bytes, Stack size 24 bytes, queue.o(.text))
@@ -698,7 +701,7 @@ Global Symbols
 <LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TRANSFER_TASK
 </UL>
 
-<P><STRONG><a name="[9c]"></a>vTaskSuspendAll</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, tasks.o(.text))
+<P><STRONG><a name="[9d]"></a>vTaskSuspendAll</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, tasks.o(.text))
 <BR><BR>[Called By]<UL><LI><a href="#[c0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPortFree
 <LI><a href="#[b5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pvPortMalloc
 <LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
@@ -722,8 +725,7 @@ Global Symbols
 <LI><a href="#[c5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uxListRemove
 <LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskResumeAll
 </UL>
-<BR>[Called By]<UL><LI><a href="#[a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;POS_TASK
-<LI><a href="#[8d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MOMENT_TASK
+<BR>[Called By]<UL><LI><a href="#[8d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MOMENT_TASK
 </UL>
 
 <P><STRONG><a name="[c9]"></a>uxTaskPriorityGet</STRONG> (Thumb, 26 bytes, Stack size 8 bytes, tasks.o(.text), UNUSED)
@@ -895,7 +897,7 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 64<LI>Call Chain = pvPortMalloc &rArr; xTaskResumeAll &rArr; vPortEnterCritical
 </UL>
 <BR>[Calls]<UL><LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskResumeAll
-<LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskSuspendAll
+<LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskSuspendAll
 </UL>
 <BR>[Called By]<UL><LI><a href="#[a2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskGenericCreate
 <LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericCreate
@@ -906,7 +908,7 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 56<LI>Call Chain = vPortFree &rArr; xTaskResumeAll &rArr; vPortEnterCritical
 </UL>
 <BR>[Calls]<UL><LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskResumeAll
-<LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskSuspendAll
+<LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskSuspendAll
 </UL>
 <BR>[Called By]<UL><LI><a href="#[48]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prvIdleTask
 <LI><a href="#[bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vQueueDelete
@@ -1043,7 +1045,7 @@ Global Symbols
 
 <P><STRONG><a name="[16c]"></a>TSVN_ACS712_Read_ADC</STRONG> (Thumb, 42 bytes, Stack size 0 bytes, ames_acs712.o(.text), UNUSED)
 
-<P><STRONG><a name="[9d]"></a>TSVN_ACS712_Read</STRONG> (Thumb, 274 bytes, Stack size 24 bytes, ames_acs712.o(.text))
+<P><STRONG><a name="[a0]"></a>TSVN_ACS712_Read</STRONG> (Thumb, 274 bytes, Stack size 24 bytes, ames_acs712.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 112<LI>Call Chain = TSVN_ACS712_Read &rArr; __aeabi_dsub &rArr; __aeabi_dadd &rArr; _double_epilogue &rArr; _double_round
 </UL>
 <BR>[Calls]<UL><LI><a href="#[e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ui2d
@@ -2570,7 +2572,7 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dadd
 </UL>
-<BR>[Called By]<UL><LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_ACS712_Read
+<BR>[Called By]<UL><LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_ACS712_Read
 <LI><a href="#[ac]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PID_Calculate
 <LI><a href="#[39]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM6_IRQHandler
 <LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;JacobianCalAngle
@@ -2605,7 +2607,7 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[138]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_double_epilogue
 </UL>
 <BR>[Called By]<UL><LI><a href="#[fb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FIR_Filter
-<LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_ACS712_Read
+<LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_ACS712_Read
 <LI><a href="#[ac]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PID_Calculate
 <LI><a href="#[a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;POS_TASK
 <LI><a href="#[8d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MOMENT_TASK
@@ -2629,7 +2631,7 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[139]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_double_round
 </UL>
-<BR>[Called By]<UL><LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_ACS712_Read
+<BR>[Called By]<UL><LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_ACS712_Read
 <LI><a href="#[ab]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AMES_Filter
 <LI><a href="#[a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;POS_TASK
 <LI><a href="#[8d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MOMENT_TASK
@@ -2648,7 +2650,7 @@ Global Symbols
 <P><STRONG><a name="[62]"></a>__ARM_scalbn</STRONG> (Thumb, 46 bytes, Stack size 16 bytes, dscalb.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = __ARM_scalbn
 </UL>
-<BR>[Called By]<UL><LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_ACS712_Read
+<BR>[Called By]<UL><LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_ACS712_Read
 <LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;JacobianCalAngle
 <LI><a href="#[5a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Delta_CalcForward
 <LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pow
@@ -2687,7 +2689,7 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[138]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_double_epilogue
 </UL>
-<BR>[Called By]<UL><LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_ACS712_Read
+<BR>[Called By]<UL><LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TSVN_ACS712_Read
 <LI><a href="#[14b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__ieee754_rem_pio2
 </UL>
 
@@ -2783,7 +2785,7 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[13c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_local_sscanf
 </UL>
-<BR>[Called By]<UL><LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;atof
+<BR>[Called By]<UL><LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;atof
 </UL>
 
 <P><STRONG><a name="[21d]"></a>__I$use$fp</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, iusefp.o(.text), UNUSED)
@@ -3053,7 +3055,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[15b]"></a>__read_errno</STRONG> (Thumb, 6 bytes, Stack size 0 bytes, errno.o(i.__read_errno))
-<BR><BR>[Called By]<UL><LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;atof
+<BR><BR>[Called By]<UL><LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;atof
 </UL>
 
 <P><STRONG><a name="[225]"></a>__scatterload_copy</STRONG> (Thumb, 14 bytes, Stack size unknown bytes, handlers.o(i.__scatterload_copy), UNUSED)
@@ -3067,7 +3069,7 @@ Global Symbols
 <LI><a href="#[60]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sin
 <LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pow
 <LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cos
-<LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;atof
+<LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;atof
 <LI><a href="#[75]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;acos
 </UL>
 
@@ -3108,7 +3110,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[67]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Delta_CalcAngleYZ
 </UL>
 
-<P><STRONG><a name="[a0]"></a>atof</STRONG> (Thumb, 42 bytes, Stack size 24 bytes, atof.o(i.atof))
+<P><STRONG><a name="[9c]"></a>atof</STRONG> (Thumb, 42 bytes, Stack size 24 bytes, atof.o(i.atof))
 <BR><BR>[Stack]<UL><LI>Max Depth = 224<LI>Call Chain = atof &rArr; __strtod_int &rArr; _local_sscanf &rArr; _scanf_real
 </UL>
 <BR>[Calls]<UL><LI><a href="#[13e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__strtod_int
