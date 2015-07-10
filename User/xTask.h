@@ -15,7 +15,6 @@
 #include <AMES_CLOCK.h>
 #include <AMES_QEI.h>
 #include <AMES_FIR.h>
-#include <AMES_CAN.h>
 #include <AMES_ACS712.h>
 #include <AMES_USART.h>
 #include <AMES_TIMER.h>
@@ -31,11 +30,6 @@
 #define TRANSFER_TASK_PRIORITY			(tskIDLE_PRIORITY + 1)
 #define MOMENT_TASK_PRIORITY				(tskIDLE_PRIORITY + 1)
 
-#define CAN_MASTER_STD_ID 			0x00
-#define CAN_MASTER_EXT_ID 			0x01
-
-#define CAN_SLAVE_STD_ID 				0x02
-#define CAN_SLAVE_EXT_ID 				0x03
 
 typedef struct Data_Structure
 {
