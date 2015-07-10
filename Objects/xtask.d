@@ -54,6 +54,7 @@
 .\objects\xtask.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 .\objects\xtask.o: .\Drivers\AMES_FIR.h
 .\objects\xtask.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\xtask.o: .\Drivers\AMES_CAN.h
 .\objects\xtask.o: .\Drivers\AMES_ACS712.h
 .\objects\xtask.o: .\Drivers\AMES_USART.h
 .\objects\xtask.o: .\Drivers\AMES_TIMER.h

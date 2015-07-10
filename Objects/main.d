@@ -54,6 +54,7 @@
 .\objects\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 .\objects\main.o: .\Drivers\AMES_FIR.h
 .\objects\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\main.o: .\Drivers\AMES_CAN.h
 .\objects\main.o: .\Drivers\AMES_ACS712.h
 .\objects\main.o: .\Drivers\AMES_USART.h
 .\objects\main.o: .\Drivers\AMES_TIMER.h
