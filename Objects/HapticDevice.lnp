@@ -10,6 +10,7 @@
 ".\objects\tasks.o"
 ".\objects\heap_2.o"
 ".\objects\port.o"
+".\objects\timers.o"
 ".\objects\ames_acs712.o"
 ".\objects\ames_can.o"
 ".\objects\ames_clock.o"

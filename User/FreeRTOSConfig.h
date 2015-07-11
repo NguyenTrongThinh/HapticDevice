@@ -95,6 +95,9 @@
 #define configUSE_16_BIT_TICKS		0
 #define configIDLE_SHOULD_YIELD		1
 #define configUSE_COUNTING_SEMAPHORES 1
+#define configUSE_TIMERS 					1
+#define configTIMER_QUEUE_LENGTH	1
+#define configTIMER_TASK_STACK_DEPTH	128
 
 /* Co-routine definitions. */
 #define configUSE_CO_ROUTINES 		0
@@ -110,6 +113,7 @@ to exclude the API function. */
 #define INCLUDE_vTaskSuspend			1
 #define INCLUDE_vTaskDelayUntil			1
 #define INCLUDE_vTaskDelay				1
+#define INCLUDE_xTimerGetTimerDaemonTaskHandle 	1
 
 /* This is the raw value as per the Cortex-M3 NVIC.  Values can be 255
 (lowest) to 0 (1?) (highest). */
@@ -117,6 +121,7 @@ to exclude the API function. */
 /* !!!! configMAX_SYSCALL_INTERRUPT_PRIORITY must not be set to zero !!!!
 See http://www.FreeRTOS.org/RTOS-Cortex-M3-M4.html. */
 #define configMAX_SYSCALL_INTERRUPT_PRIORITY 	1 /* equivalent to 0xb0, or priority 11. */
+#define configTIMER_TASK_PRIORITY							1
 
 /* This is the value being used as per the ST library which permits 16
 priority values, 0 to 15.  This must correspond to the

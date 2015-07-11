@@ -5,13 +5,18 @@
 #define MOTOR3_PWM				PWM_CHANNEL_4
 
 #define CAN_DATA_LENGTH		6
+#define TIMOUT_ID					1
 
 xQueueHandle Pos_Queue;
 xQueueHandle CanRxQueue;
 xQueueHandle RxQueue;
 xQueueHandle Moment_Queue;
+TimerHandle_t TimeoutTimer;
+
+static __IO long Timeout_CNT = 30;
 
 xSemaphoreHandle UART_xCountingSemaphore;
+xSemaphoreHandle CAN_xCountingSemaphore;
 Moment_Typedef Moment;
 
 enum  {MOTOR1 = 0x00, MOTOR2, MOTOR3};
@@ -21,10 +26,13 @@ enum  {USART_ID};
 float ACS1_CALIB = -100.0f;
 float ACS2_CALIB = -100.0f;
 float ACS3_CALIB =  790.0f;
+static __IO bool RTS = true;
 
 //*******************Global*********************
 
 //**********************************************
+
+void vTimeoutCallback(TimerHandle_t pxTimer);
 
 unsigned char Application_Init(void)
 {
@@ -38,7 +46,9 @@ unsigned char Application_Init(void)
 	TSVN_QEI_TIM1_Init(400);
 	TSVN_QEI_TIM3_Init(400);
 	TSVN_QEI_TIM4_Init(400);
+	
 	TSVN_CAN_Init();
+	
 	TSVN_USART_Init();
 	FIR_Init();
 	PWM_Max_Value = TSVN_PWM_TIM5_Init(5000);
@@ -63,8 +73,9 @@ unsigned char Application_Init(void)
 	RxQueue = xQueueCreate(200, sizeof(xData));
 	
 	UART_xCountingSemaphore = xSemaphoreCreateCounting(200, 0);
+	CAN_xCountingSemaphore = xSemaphoreCreateCounting(200, 0);
 	
-	if (Pos_Queue != NULL && CanRxQueue != NULL  &&
+	if (Pos_Queue != NULL && CanRxQueue != NULL  && CAN_xCountingSemaphore != NULL &&
 			Moment_Queue != NULL && UART_xCountingSemaphore != NULL && RxQueue != NULL)
 		return SUCCESS;
 	return ERROR;
@@ -72,6 +83,9 @@ unsigned char Application_Init(void)
 
 void Application_Run(void)
 {
+	TimeoutTimer = xTimerCreate("Timeout", 100/portTICK_PERIOD_MS , pdTRUE, (void*) TIMOUT_ID, vTimeoutCallback);
+	if (TimeoutTimer != NULL)
+		xTimerStart(TimeoutTimer, 0);
 	xTaskCreate(POS_TASK, 	"POS", POS_TASK_STACK_SIZE, NULL, POS_TASK_PRIORITY, NULL);	
 	xTaskCreate(TRANSFER_TASK, 	"TRANSFER", TRANSFER_TASK_STACK_SIZE, NULL, TRANSFER_TASK_PRIORITY, NULL);	
 	xTaskCreate(MOMENT_TASK, 	"MOMENT", MOMENT_TASK_STACK_SIZE, NULL, MOMENT_TASK_PRIORITY, NULL);	
@@ -129,7 +143,7 @@ void MOMENT_TASK(void *pvParameters)
 			}
 		}
 		TSVN_Led_Toggle(LED_D6);
-		vTaskDelay(200);
+		vTaskDelay(50);
 	}
 }
 void TRANSFER_TASK(void *pvParameters)
@@ -229,6 +243,7 @@ void POS_TASK(void *pvParameters)
 	CanSendData.DLC = 	CAN_DATA_LENGTH;
 	while(1)
 	{
+		xSemaphoreTake(CAN_xCountingSemaphore, portMAX_DELAY);
 		Theta[0] = ((float)TSVN_QEI_TIM1_Value()*0.9)/7.0;
 		Theta[1] = ((float)TSVN_QEI_TIM4_Value()*0.9)/7.0;
 		Theta[2] = ((float)TSVN_QEI_TIM3_Value()*0.9)/7.0;		
@@ -270,10 +285,11 @@ void POS_TASK(void *pvParameters)
 				}
 				vTaskSuspendAll();
 				CAN_Transmit(CAN1, &CanSendData);
+				RTS = false;
+				Timeout_CNT = 30;
 				xTaskResumeAll();
 		}
 		TSVN_Led_Toggle(LED_D4);
-		vTaskDelay(100);
 	}
 }
 
@@ -285,7 +301,10 @@ void CAN1_RX0_IRQHandler(void)
 	{
 		CAN_Receive(CAN1, CAN_FIFO0, &RxMessage);
 		if ((RxMessage.StdId == CAN_SLAVE_STD_ID) && (RxMessage.IDE == CAN_ID_STD) && (RxMessage.DLC == CAN_DATA_LENGTH))
-		xQueueSendToBackFromISR(CanRxQueue, &RxMessage, &xHigherPriorityTaskWoken);
+		{
+			xQueueSendToBackFromISR(CanRxQueue, &RxMessage, &xHigherPriorityTaskWoken);
+			xSemaphoreGiveFromISR(CAN_xCountingSemaphore, &xHigherPriorityTaskWoken);
+		}
 	}
 	portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
 }
@@ -351,6 +370,16 @@ void TIM6_IRQHandler(void)
 			}
 		}
 		
+	}
+}
+void vTimeoutCallback(TimerHandle_t pxTimer)
+{
+	static portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
+	TSVN_Led_Toggle(LED_D7);
+	if (Timeout_CNT-- == 0)
+	{
+		Timeout_CNT = 30;
+		xSemaphoreGiveFromISR(CAN_xCountingSemaphore, &xHigherPriorityTaskWoken);
 	}
 }
 
