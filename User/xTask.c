@@ -16,7 +16,6 @@ TimerHandle_t TimeoutTimer;
 static __IO long Timeout_CNT = 30;
 
 xSemaphoreHandle UART_xCountingSemaphore;
-xSemaphoreHandle CAN_xCountingSemaphore;
 Moment_Typedef Moment;
 
 enum  {MOTOR1 = 0x00, MOTOR2, MOTOR3};
@@ -26,7 +25,8 @@ enum  {USART_ID};
 float ACS1_CALIB = -100.0f;
 float ACS2_CALIB = -100.0f;
 float ACS3_CALIB =  790.0f;
-static __IO bool RTS = true;
+
+static __IO bool __FORCE_REQUEST = false;
 
 //*******************Global*********************
 
@@ -73,9 +73,8 @@ unsigned char Application_Init(void)
 	RxQueue = xQueueCreate(200, sizeof(xData));
 	
 	UART_xCountingSemaphore = xSemaphoreCreateCounting(200, 0);
-	CAN_xCountingSemaphore = xSemaphoreCreateCounting(200, 0);
 	
-	if (Pos_Queue != NULL && CanRxQueue != NULL  && CAN_xCountingSemaphore != NULL &&
+	if (Pos_Queue != NULL && CanRxQueue != NULL  && 
 			Moment_Queue != NULL && UART_xCountingSemaphore != NULL && RxQueue != NULL)
 		return SUCCESS;
 	return ERROR;
@@ -121,6 +120,7 @@ void MOMENT_TASK(void *pvParameters)
 					F[2] = -F[2];
 				F[2] += 6;
 			}
+			__FORCE_REQUEST = false;
 		}
 		Theta[0] = ((float)TSVN_QEI_TIM1_Value()*0.9)/7.0;
 		Theta[1] = ((float)TSVN_QEI_TIM4_Value()*0.9)/7.0;
@@ -236,6 +236,8 @@ void POS_TASK(void *pvParameters)
 	float Theta[3];
 	Pos_TypeDef Pos;
 	char Status = 0;
+	static __IO uint8_t Timeout = 0;
+	static __IO bool isSend = false;
 	CanTxMsg CanSendData;
 	CanSendData.StdId = CAN_MASTER_STD_ID;
 	CanSendData.IDE = 	CAN_ID_STD;
@@ -243,53 +245,75 @@ void POS_TASK(void *pvParameters)
 	CanSendData.DLC = 	CAN_DATA_LENGTH;
 	while(1)
 	{
-		xSemaphoreTake(CAN_xCountingSemaphore, portMAX_DELAY);
-		Theta[0] = ((float)TSVN_QEI_TIM1_Value()*0.9)/7.0;
-		Theta[1] = ((float)TSVN_QEI_TIM4_Value()*0.9)/7.0;
-		Theta[2] = ((float)TSVN_QEI_TIM3_Value()*0.9)/7.0;		
-		Status = (char)Delta_CalcForward(Theta[0], Theta[1], Theta[2], &Pos.Px, &Pos.Py, &Pos.Pz);
-		if (Status == 0)
-		{
-				if (Pos.Px<0)
+			if (__FORCE_REQUEST)
+			{
+				if (!isSend)
 				{
-					CanSendData.Data[0] = 0;
-					Pos.Px = -Pos.Px;
-					CanSendData.Data[1] = (unsigned char)Pos.Px;
+					CanSendData.Data[0] = 'F';
+					vTaskSuspendAll();
+					CAN_Transmit(CAN1, &CanSendData);
+					xTaskResumeAll();
+					isSend = true;
 				}
-				else
+				if (Timeout++ >= 5)
 				{
-					CanSendData.Data[0] = 1;
-					CanSendData.Data[1] = (unsigned char)Pos.Px;
+					Timeout = 0;
+					isSend = false;
+					__FORCE_REQUEST = false;
 				}
-				if (Pos.Py<0)
+			}
+			else
+			{
+				Theta[0] = ((float)TSVN_QEI_TIM1_Value()*0.9)/7.0;
+				Theta[1] = ((float)TSVN_QEI_TIM4_Value()*0.9)/7.0;
+				Theta[2] = ((float)TSVN_QEI_TIM3_Value()*0.9)/7.0;		
+				Status = (char)Delta_CalcForward(Theta[0], Theta[1], Theta[2], &Pos.Px, &Pos.Py, &Pos.Pz);
+				if (Status == 0)
 				{
-					CanSendData.Data[2] = 0;
-					Pos.Py = -Pos.Py;
-					CanSendData.Data[3] = (unsigned char)Pos.Py;
+						if (Pos.Px<0)
+						{
+							CanSendData.Data[0] = 0;
+							Pos.Px = -Pos.Px;
+							CanSendData.Data[1] = (unsigned char)Pos.Px;
+						}
+						else
+						{
+							CanSendData.Data[0] = 1;
+							CanSendData.Data[1] = (unsigned char)Pos.Px;
+						}
+						if (Pos.Py<0)
+						{
+							CanSendData.Data[2] = 0;
+							Pos.Py = -Pos.Py;
+							CanSendData.Data[3] = (unsigned char)Pos.Py;
+						}
+						else
+						{
+							CanSendData.Data[2] = 1;
+							CanSendData.Data[3] = (unsigned char)Pos.Py;
+						}
+						if (Pos.Pz<0)
+						{
+							CanSendData.Data[4] = 0;
+							Pos.Pz = -Pos.Pz;
+							CanSendData.Data[5] = (unsigned char)Pos.Pz;
+						}
+						else
+						{
+							CanSendData.Data[4] = 1;
+							CanSendData.Data[5] = (unsigned char)Pos.Pz;
+						}
+						
 				}
-				else
-				{
-					CanSendData.Data[2] = 1;
-					CanSendData.Data[3] = (unsigned char)Pos.Py;
-				}
-				if (Pos.Pz<0)
-				{
-					CanSendData.Data[4] = 0;
-					Pos.Pz = -Pos.Pz;
-					CanSendData.Data[5] = (unsigned char)Pos.Pz;
-				}
-				else
-				{
-					CanSendData.Data[4] = 1;
-					CanSendData.Data[5] = (unsigned char)Pos.Pz;
-				}
+			}
+			if (!__FORCE_REQUEST)
+			{
 				vTaskSuspendAll();
 				CAN_Transmit(CAN1, &CanSendData);
-				RTS = false;
-				Timeout_CNT = 30;
 				xTaskResumeAll();
-		}
-		TSVN_Led_Toggle(LED_D4);
+			}
+			TSVN_Led_Toggle(LED_D4);
+			vTaskDelay(100);
 	}
 }
 
@@ -303,7 +327,6 @@ void CAN1_RX0_IRQHandler(void)
 		if ((RxMessage.StdId == CAN_SLAVE_STD_ID) && (RxMessage.IDE == CAN_ID_STD) && (RxMessage.DLC == CAN_DATA_LENGTH))
 		{
 			xQueueSendToBackFromISR(CanRxQueue, &RxMessage, &xHigherPriorityTaskWoken);
-			xSemaphoreGiveFromISR(CAN_xCountingSemaphore, &xHigherPriorityTaskWoken);
 		}
 	}
 	portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
@@ -374,12 +397,11 @@ void TIM6_IRQHandler(void)
 }
 void vTimeoutCallback(TimerHandle_t pxTimer)
 {
-	static portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
 	TSVN_Led_Toggle(LED_D7);
 	if (Timeout_CNT-- == 0)
 	{
 		Timeout_CNT = 30;
-		xSemaphoreGiveFromISR(CAN_xCountingSemaphore, &xHigherPriorityTaskWoken);
+		__FORCE_REQUEST = true;
 	}
 }
 
