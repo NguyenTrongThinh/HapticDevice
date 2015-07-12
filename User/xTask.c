@@ -13,8 +13,6 @@ xQueueHandle RxQueue;
 xQueueHandle Moment_Queue;
 TimerHandle_t TimeoutTimer;
 
-static __IO long Timeout_CNT = 30;
-
 xSemaphoreHandle UART_xCountingSemaphore;
 Moment_Typedef Moment;
 
@@ -82,7 +80,7 @@ unsigned char Application_Init(void)
 
 void Application_Run(void)
 {
-	TimeoutTimer = xTimerCreate("Timeout", 100/portTICK_PERIOD_MS , pdTRUE, (void*) TIMOUT_ID, vTimeoutCallback);
+	TimeoutTimer = xTimerCreate("Timeout", 1000/portTICK_PERIOD_MS , pdTRUE, (void*) TIMOUT_ID, vTimeoutCallback);
 	if (TimeoutTimer != NULL)
 		xTimerStart(TimeoutTimer, 0);
 	xTaskCreate(POS_TASK, 	"POS", POS_TASK_STACK_SIZE, NULL, POS_TASK_PRIORITY, NULL);	
@@ -143,7 +141,7 @@ void MOMENT_TASK(void *pvParameters)
 			}
 		}
 		TSVN_Led_Toggle(LED_D6);
-		vTaskDelay(50);
+		vTaskDelay(200);
 	}
 }
 void TRANSFER_TASK(void *pvParameters)
@@ -239,10 +237,12 @@ void POS_TASK(void *pvParameters)
 	static __IO uint8_t Timeout = 0;
 	static __IO bool isSend = false;
 	CanTxMsg CanSendData;
+	
 	CanSendData.StdId = CAN_MASTER_STD_ID;
 	CanSendData.IDE = 	CAN_ID_STD;
 	CanSendData.RTR = 	CAN_RTR_DATA;
 	CanSendData.DLC = 	CAN_DATA_LENGTH;
+	
 	while(1)
 	{
 			if (__FORCE_REQUEST)
@@ -250,9 +250,7 @@ void POS_TASK(void *pvParameters)
 				if (!isSend)
 				{
 					CanSendData.Data[0] = 'F';
-					vTaskSuspendAll();
 					CAN_Transmit(CAN1, &CanSendData);
-					xTaskResumeAll();
 					isSend = true;
 				}
 				if (Timeout++ >= 5)
@@ -308,9 +306,7 @@ void POS_TASK(void *pvParameters)
 			}
 			if (!__FORCE_REQUEST)
 			{
-				vTaskSuspendAll();
 				CAN_Transmit(CAN1, &CanSendData);
-				xTaskResumeAll();
 			}
 			TSVN_Led_Toggle(LED_D4);
 			vTaskDelay(100);
@@ -392,16 +388,11 @@ void TIM6_IRQHandler(void)
 				Moments[2] = Moment.Mz;
 			}
 		}
-		
 	}
 }
 void vTimeoutCallback(TimerHandle_t pxTimer)
 {
 	TSVN_Led_Toggle(LED_D7);
-	if (Timeout_CNT-- == 0)
-	{
-		Timeout_CNT = 30;
 		__FORCE_REQUEST = true;
-	}
 }
 
