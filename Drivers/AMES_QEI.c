@@ -1,16 +1,16 @@
 #include <AMES_QEI.h>
 
-unsigned int *TIM1_MAXCNT;
-long *TIM1_Over_Load;
+static __IO unsigned int TIM1_MAXCNT = 0;
+static __IO long TIM1_Over_Load = 0;
 
-unsigned int *TIM2_MAXCNT;
-long *TIM2_Over_Load;
+static __IO unsigned int TIM2_MAXCNT = 0;
+static __IO long TIM2_Over_Load = 0;
 
-unsigned int *TIM3_MAXCNT;
-long *TIM3_Over_Load;
+static __IO unsigned int TIM3_MAXCNT = 0;
+static __IO long TIM3_Over_Load = 0;
 
-unsigned int *TIM4_MAXCNT;
-long *TIM4_Over_Load;
+static __IO unsigned int TIM4_MAXCNT = 0;
+static __IO long TIM4_Over_Load = 0;
 
 /**********************************************************************/
 //QEI Timer 1
@@ -20,10 +20,8 @@ void TSVN_QEI_TIM1_Init(unsigned int MAX_CNT)
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
 	NVIC_InitTypeDef NVIC_InitStructure;
 	
-	TIM1_MAXCNT = (unsigned int*)malloc(sizeof(unsigned int));
-	TIM1_Over_Load = (long*)malloc(sizeof(long));
-	*TIM1_Over_Load = 0;
-	*TIM1_MAXCNT = MAX_CNT;
+	TIM1_Over_Load = 0;
+	TIM1_MAXCNT = MAX_CNT;
 	
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOE | RCC_APB2Periph_AFIO, ENABLE);
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
@@ -54,23 +52,21 @@ void TSVN_QEI_TIM1_Init(unsigned int MAX_CNT)
 void TSVN_QEI_TIM1_Deinit(void)
 {
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, DISABLE);
-	free(TIM1_MAXCNT);
-	free(TIM1_Over_Load);
 }
 void TIM1_UP_IRQHandler(void)
 {
 	if (TIM_GetITStatus(TIM1, TIM_IT_Update) != RESET)
-  {
-    TIM_ClearITPendingBit(TIM1, TIM_IT_Update);
+  { 
 		if((TIM1->CR1)&0x0010)
-			(*TIM1_Over_Load)--;
+			(TIM1_Over_Load)--;
 		else
-			(*TIM1_Over_Load)++;
+			(TIM1_Over_Load)++;
+		TIM_ClearITPendingBit(TIM1, TIM_IT_Update);
 	}
 }
 long TSVN_QEI_TIM1_Value(void)
 {
-	return (*TIM1_Over_Load)*(*TIM1_MAXCNT) + (long)TIM1->CNT;
+	return (TIM1_Over_Load)*(TIM1_MAXCNT) + (long)TIM1->CNT;
 }
 /*********************************************************************/
 //QEI Timer 2
@@ -79,10 +75,8 @@ void TSVN_QEI_TIM2_Init(unsigned int MAX_CNT)
 	GPIO_InitTypeDef GPIO_InitStructure;
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
 	NVIC_InitTypeDef NVIC_InitStructure;
-	TIM2_MAXCNT = (unsigned int*)malloc(sizeof(unsigned int));
-	TIM2_Over_Load = (long*)malloc(sizeof(long));
-	*TIM2_Over_Load = 0;
-	*TIM2_MAXCNT = MAX_CNT;
+	TIM2_Over_Load = 0;
+	TIM2_MAXCNT = MAX_CNT;
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO, ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1;
@@ -108,26 +102,23 @@ void TSVN_QEI_TIM2_Init(unsigned int MAX_CNT)
 }
 void TSVN_QEI_TIM2_Deinit(void)
 {
-	free(TIM2_MAXCNT);
-  free(TIM2_Over_Load);
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, DISABLE);
 }
 void TIM2_IRQHandler(void)
 {
 	if (TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET)
   {
-    TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
-
 		if((TIM2->CR1)&0x0010)
-			(*TIM2_Over_Load)--;
+			(TIM2_Over_Load)--;
 		else
-			(*TIM2_Over_Load)++;
+			(TIM2_Over_Load)++; 
+		TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
 	}
 }
 
 long TSVN_QEI_TIM2_Value(void)
 {
-	return (*TIM2_Over_Load)*(*TIM2_MAXCNT) + (long)TIM2->CNT;
+	return (TIM2_Over_Load)*(TIM2_MAXCNT) + (long)TIM2->CNT;
 }
 /************************************************************************/
 //QEI Timer 3
@@ -136,11 +127,8 @@ void TSVN_QEI_TIM3_Init(unsigned int MAX_CNT)
 	GPIO_InitTypeDef GPIO_InitStructure;
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
 	NVIC_InitTypeDef NVIC_InitStructure;
-	
-	TIM3_MAXCNT = (unsigned int*)malloc(sizeof(unsigned int));
-	TIM3_Over_Load = (long*)malloc(sizeof(long));
-	*TIM3_Over_Load = 0;
-	*TIM3_MAXCNT = MAX_CNT;
+	TIM3_Over_Load = 0;
+	TIM3_MAXCNT = MAX_CNT;
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC | RCC_APB2Periph_AFIO, ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7;
@@ -157,10 +145,10 @@ void TSVN_QEI_TIM3_Init(unsigned int MAX_CNT)
   TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
 	TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
 
-	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
   NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x00;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
 	TIM_Cmd(TIM3, ENABLE);
@@ -168,25 +156,22 @@ void TSVN_QEI_TIM3_Init(unsigned int MAX_CNT)
 }
 void TSVN_QEI_TIM3_Deinit(void)
 {
-	free(TIM3_MAXCNT);
-  free(TIM3_Over_Load);
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, DISABLE);
 }
 void TIM3_IRQHandler(void)
 {
 	if (TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET)
   {
-    TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
-
 		if((TIM3->CR1)&0x0010)
-			(*TIM3_Over_Load)--;
+			(TIM3_Over_Load)--;
 		else
-			(*TIM3_Over_Load)++;
+			(TIM3_Over_Load)++;
+		TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
 	}
 }
 long TSVN_QEI_TIM3_Value(void)
 {
-		return (*TIM3_Over_Load)*(*TIM3_MAXCNT) + (long)TIM3->CNT;
+		return (TIM3_Over_Load)*(TIM3_MAXCNT) + (long)TIM3->CNT;
 }
 /**********************************************************************/
 //QEI Timer 4
@@ -195,10 +180,8 @@ void TSVN_QEI_TIM4_Init(unsigned int MAX_CNT)
 	GPIO_InitTypeDef GPIO_InitStructure;
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
 	NVIC_InitTypeDef NVIC_InitStructure;
-	TIM4_MAXCNT = (unsigned int*)malloc(sizeof(unsigned int));
-	TIM4_Over_Load = (long*)malloc(sizeof(long));
-	*TIM4_Over_Load = 0;
-	*TIM4_MAXCNT = MAX_CNT;
+	TIM4_Over_Load = 0;
+	TIM4_MAXCNT = MAX_CNT;
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO, ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7;
@@ -214,10 +197,10 @@ void TSVN_QEI_TIM4_Init(unsigned int MAX_CNT)
   TIM_ITConfig(TIM4, TIM_IT_Update, ENABLE);
 	TIM_ClearITPendingBit(TIM4, TIM_IT_Update);
 
-	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
   NVIC_InitStructure.NVIC_IRQChannel = TIM4_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x00;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
 	TIM_Cmd(TIM4, ENABLE);
@@ -225,25 +208,22 @@ void TSVN_QEI_TIM4_Init(unsigned int MAX_CNT)
 }
 void TSVN_QEI_TIM4_Deinit(void)
 {
-	free(TIM4_MAXCNT);
-  free(TIM4_Over_Load);
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, DISABLE);
 }
 void TIM4_IRQHandler(void)
 {
 	if (TIM_GetITStatus(TIM4, TIM_IT_Update) != RESET)
   {
-    TIM_ClearITPendingBit(TIM4, TIM_IT_Update);
-
 		if((TIM4->CR1>>4)&0x0001)
-			(*TIM4_Over_Load)--;
+			(TIM4_Over_Load)--;
 		else
-			(*TIM4_Over_Load)++;
+			(TIM4_Over_Load)++;
+		TIM_ClearITPendingBit(TIM4, TIM_IT_Update);
 	}
 }
 
 long TSVN_QEI_TIM4_Value(void)
 {
-	return (*TIM4_Over_Load)*(*TIM4_MAXCNT) + (long)TIM4->CNT;
+	return (TIM4_Over_Load)*(TIM4_MAXCNT) + (long)TIM4->CNT;
 }
 

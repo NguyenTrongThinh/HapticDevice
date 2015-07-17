@@ -7,6 +7,8 @@
 #define CAN_DATA_LENGTH		6
 #define TIMOUT_ID					1
 
+#define USE_VIRTUAL_WALL 		
+
 xQueueHandle Pos_Queue;
 xQueueHandle CanRxQueue;
 xQueueHandle RxQueue;
@@ -20,9 +22,9 @@ enum  {MOTOR1 = 0x00, MOTOR2, MOTOR3};
 enum  {RESERVE, FORWARD};
 enum  {USART_ID};
 
-float ACS1_CALIB = -100.0f;
-float ACS2_CALIB = -100.0f;
-float ACS3_CALIB =  790.0f;
+float ACS1_CALIB = -173.57994f;
+float ACS2_CALIB = -209.76501f;
+float ACS3_CALIB =  914.10095f;
 
 static __IO bool __FORCE_REQUEST = false;
 
@@ -35,8 +37,8 @@ void vTimeoutCallback(TimerHandle_t pxTimer);
 unsigned char Application_Init(void)
 {
 	unsigned int PWM_Max_Value = 0;
-	PIDCoff Coff_MOTOR = {4.0, 0.01, 0.000001};
-
+	PIDCoff Coff_MOTOR = {0.0, 0.0, 0.0};
+	
 	TSVN_FOSC_Init();
 	TSVN_Led_Init(ALL);
 	TSVN_ACS712_Init();
@@ -50,11 +52,12 @@ unsigned char Application_Init(void)
 	TSVN_USART_Init();
 	FIR_Init();
 	PWM_Max_Value = TSVN_PWM_TIM5_Init(5000);
-	TSVN_PWM_TIM5_Set_Duty(0, MOTOR1_PWM);
-	TSVN_PWM_TIM5_Set_Duty(0, MOTOR2_PWM);
-	TSVN_PWM_TIM5_Set_Duty(0, MOTOR3_PWM);
+	TSVN_PWM_TIM5_Set_Duty(10, MOTOR1_PWM);
+	TSVN_PWM_TIM5_Set_Duty(10, MOTOR2_PWM);
+	TSVN_PWM_TIM5_Set_Duty(10, MOTOR3_PWM);
 	TSVN_PWM_TIM5_Start();
 	DIR_Init();
+	
 	PID_Mem_Create(3);
 	PID_WindUp_Init(MOTOR1, PWM_Max_Value);
 	PID_WindUp_Init(MOTOR2, PWM_Max_Value);
@@ -65,6 +68,7 @@ unsigned char Application_Init(void)
 	PID_Init(MOTOR3, Coff_MOTOR);
 	
 	TSVN_TIM6_Init(2000);
+	
 	Pos_Queue = xQueueCreate(200, sizeof(Pos_TypeDef));
 	CanRxQueue = xQueueCreate(200, sizeof(CanRxMsg));
 	Moment_Queue = xQueueCreate(200, sizeof(Moment_Typedef));
@@ -91,57 +95,87 @@ void Application_Run(void)
 
 void MOMENT_TASK(void *pvParameters)
 {
-	float Theta[3];
+	static float Theta[3];
 	float Cordinate[3];
 	float F[3] = {0.0, 0.0, 0.0};
 	float Phi[3];
 	float Moment[3];
-	portBASE_TYPE xStatus;
-	CanRxMsg CanReceiveData;
+	#ifndef USE_VIRTUAL_WALL
+		portBASE_TYPE xStatus;
+		CanRxMsg CanReceiveData;
+	#endif
 	Moment_Typedef M;
 	unsigned char Status;
 	while(1)
 	{
-		if (uxQueueMessagesWaiting(CanRxQueue) != NULL)
-		{
-			xStatus = xQueueReceive(CanRxQueue, &CanReceiveData, 1);
-			if (xStatus == pdPASS)
+		#ifndef USE_VIRTUAL_WALL
+			if (uxQueueMessagesWaiting(CanRxQueue) != NULL)
 			{
-				F[0] = CanReceiveData.Data[1];
-				F[1] = CanReceiveData.Data[3];
-				F[2] = CanReceiveData.Data[5];
-				if (CanReceiveData.Data[0] == 0)
-					F[0] = -F[0];
-				if (CanReceiveData.Data[2] == 0)
-					F[1] = -F[1];
-				if (CanReceiveData.Data[4] == 0)
-					F[2] = -F[2];
-				F[2] += 6;
+				xStatus = xQueueReceive(CanRxQueue, &CanReceiveData, 1);
+				if (xStatus == pdPASS)
+				{
+					F[0] = CanReceiveData.Data[1];
+					F[1] = CanReceiveData.Data[3];
+					F[2] = CanReceiveData.Data[5];
+					if (CanReceiveData.Data[0] == 0)
+						F[0] = -F[0];
+					if (CanReceiveData.Data[2] == 0)
+						F[1] = -F[1];
+					if (CanReceiveData.Data[4] == 0)
+						F[2] = -F[2];
+					F[2] += 6;
+				}
+				__FORCE_REQUEST = false;
 			}
-			__FORCE_REQUEST = false;
-		}
-		Theta[0] = ((float)TSVN_QEI_TIM1_Value()*0.9)/7.0;
-		Theta[1] = ((float)TSVN_QEI_TIM4_Value()*0.9)/7.0;
-		Theta[2] = ((float)TSVN_QEI_TIM3_Value()*0.9)/7.0;		
-		Status = (char)Delta_CalcForward(Theta[0], Theta[1], Theta[2], &Cordinate[0], &Cordinate[1], &Cordinate[2]);
-		if (Status == 0)
-		{
-			if (Cordinate[0] >= -44.165 && Cordinate[0] <= 44.165 && 
-					Cordinate[1] >= -44.165 && Cordinate[1] <= 44.165 &&
-					Cordinate[2] >= -203.648 && Cordinate[2] <= -115.318)
+			Theta[0] = ((float)TSVN_QEI_TIM1_Value()*0.9)/7.0;
+			Theta[1] = ((float)TSVN_QEI_TIM4_Value()*0.9)/7.0;
+			Theta[2] = ((float)TSVN_QEI_TIM3_Value()*0.9)/7.0;		
+			Status = (unsigned char)Delta_CalcForward(Theta[0], Theta[1], Theta[2], &Cordinate[0], &Cordinate[1], &Cordinate[2]);
+			if (Status == 0)
 			{
-					Phi[0] = -90.0;
-					Phi[1] = 30.0;
-					Phi[2] = 150;
-					MomentCalculate(Theta, Phi, Cordinate, F, &Moment);
-				  M.Mx = (Moment[0]*2000.0 > 550.0)?550.0:Moment[0]*2000.0;
-					M.My = (Moment[1]*2000.0 > 550.0)?550.0:Moment[1]*2000.0;
-					M.Mz = (Moment[2]*2000.0 > 550.0)?550.0:Moment[2]*2000.0;
-					xQueueSendToBack(Moment_Queue, &M, 1);
+				if (Cordinate[0] >= -44.165 && Cordinate[0] <= 44.165 && 
+						Cordinate[1] >= -44.165 && Cordinate[1] <= 44.165 &&
+						Cordinate[2] >= -203.648 && Cordinate[2] <= -115.318)
+				{
+						Phi[0] = -90.0;
+						Phi[1] = 30.0;
+						Phi[2] = 150;
+						MomentCalculate(Theta, Phi, Cordinate, F, &Moment);
+						M.Mx = (Moment[0]*1500.0 > 1500.0)?1500.0:Moment[0]*1500.0;
+						M.My = (Moment[1]*1500.0 > 1500.0)?1500.0:Moment[1]*1500.0;
+						M.Mz = (Moment[2]*1500.0 > 1500.0)?1500.0:Moment[2]*1500.0;
+						xQueueSendToBack(Moment_Queue, &M, 1);
+				}
 			}
-		}
-		TSVN_Led_Toggle(LED_D6);
-		vTaskDelay(200);
+		#else
+			Theta[0] = ((float)TSVN_QEI_TIM1_Value()*0.9)/7.0;
+			Theta[1] = ((float)TSVN_QEI_TIM4_Value()*0.9)/7.0;
+			Theta[2] = ((float)TSVN_QEI_TIM3_Value()*0.9)/7.0;
+			printf("%0.5f\t%0.5f\t%0.5f\n", Theta[0], Theta[1], Theta[2]);	
+			Status = (unsigned char)Delta_CalcForward(Theta[0], Theta[1], Theta[2], &Cordinate[0], &Cordinate[1], &Cordinate[2]);	
+			if (Status == 0)
+			{
+				if (Cordinate[0] >= -44.165  && Cordinate[0] <= 44.165 && 
+						Cordinate[1] >= -44.165  && Cordinate[1] <= 44.165 &&
+						Cordinate[2] >= -203.648 && Cordinate[2] <= -115.318)
+				{
+						Phi[0] = -90.0;
+						Phi[1] = 30.0;
+						Phi[2] = 150;
+						F[2] = (float)Cordinate[2]*0.178 + 25.7;
+						//F[2] = (Cordinate[2] >= -170.0)?15:0;
+						//printf("%0.5f\n", F[2]);
+						MomentCalculate(Theta, Phi, Cordinate, F, &Moment);
+						M.Mx = (Moment[0]*1500.0 > 1500.0)?1500.0:Moment[0]*1500.0;
+						M.My = (Moment[1]*1500.0 > 1500.0)?1500.0:Moment[1]*1500.0;
+						M.Mz = (Moment[2]*1500.0 > 1500.0)?1500.0:Moment[2]*1500.0;
+						xQueueSendToBack(Moment_Queue, &M, 1);
+				}
+			}
+			TSVN_Led_Toggle(LED_D6);
+			vTaskDelay(150);
+		#endif
+		
 	}
 }
 void TRANSFER_TASK(void *pvParameters)
@@ -210,15 +244,22 @@ void TRANSFER_TASK(void *pvParameters)
 								CurentValue_MOTOR[MOTOR1] = 0;
 								CurentValue_MOTOR[MOTOR2] = 0;
 								CurentValue_MOTOR[MOTOR3] = 0;
-								for (i = 0; i<200; i++)
+								for (i = 0; i<50; i++)
 								{
 									CurentValue_MOTOR[MOTOR1] += TSVN_ACS712_Read(ACS_1);
 									CurentValue_MOTOR[MOTOR2] += TSVN_ACS712_Read(ACS_2);
 									CurentValue_MOTOR[MOTOR3] += TSVN_ACS712_Read(ACS_3);
 								}
-								ACS1_CALIB = CurentValue_MOTOR[MOTOR1]/200.0;
-								ACS2_CALIB = CurentValue_MOTOR[MOTOR2]/200.0;
-								ACS3_CALIB = CurentValue_MOTOR[MOTOR3]/200.0;
+								ACS1_CALIB = CurentValue_MOTOR[MOTOR1]/50.0;
+								ACS2_CALIB = CurentValue_MOTOR[MOTOR2]/50.0;
+								ACS3_CALIB = CurentValue_MOTOR[MOTOR3]/50.0;
+								PID_Coff.Kp = 6.0;
+								PID_Coff.Ki = 0.01;
+								PID_Coff.Kd = 0.0001;
+								PID_Init(MOTOR1, PID_Coff);
+								PID_Init(MOTOR2, PID_Coff);
+								PID_Coff.Kp = 4.0;
+								PID_Init(MOTOR3, PID_Coff);
 								printf("Calib: %0.5f\t%0.5f\t%0.5f\n", ACS1_CALIB, ACS2_CALIB, ACS3_CALIB);
 								xTaskResumeAll();
 							}
@@ -301,7 +342,6 @@ void POS_TASK(void *pvParameters)
 							CanSendData.Data[4] = 1;
 							CanSendData.Data[5] = (unsigned char)Pos.Pz;
 						}
-						
 				}
 			}
 			if (!__FORCE_REQUEST)
@@ -345,8 +385,8 @@ void TIM6_IRQHandler(void)
 	static float CurentValue_MOTOR[3];
 	static portBASE_TYPE xStatus;
 	static Moment_Typedef Moment;
-	static float Moments[3];
-	static long PWM_MOTOR[3]; 
+	static float Moments[3] = {0, 0, 0};
+	static int PWM_MOTOR[3]; 
 	if(TIM_GetITStatus(TIM6, TIM_IT_Update) != RESET)
 	{
 		TIM_ClearITPendingBit(TIM6, TIM_IT_Update);
@@ -371,7 +411,6 @@ void TIM6_IRQHandler(void)
 		TSVN_PWM_TIM5_Set_Duty(abs(PWM_MOTOR[MOTOR2]), MOTOR2_PWM);
 		
 		PWM_MOTOR[MOTOR3] = PID_Calculate(MOTOR3, Moments[2], CurentValue_MOTOR[MOTOR3]);
-		
 		if (PWM_MOTOR[MOTOR3] < 0)
 				DIR_Change(MOTOR3, RESERVE);
 		else
