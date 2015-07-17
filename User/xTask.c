@@ -12,7 +12,6 @@
 xQueueHandle Pos_Queue;
 xQueueHandle CanRxQueue;
 xQueueHandle RxQueue;
-xQueueHandle Moment_Queue;
 TimerHandle_t TimeoutTimer;
 
 xSemaphoreHandle UART_xCountingSemaphore;
@@ -22,9 +21,7 @@ enum  {MOTOR1 = 0x00, MOTOR2, MOTOR3};
 enum  {RESERVE, FORWARD};
 enum  {USART_ID};
 
-float ACS1_CALIB = -173.57994f;
-float ACS2_CALIB = -209.76501f;
-float ACS3_CALIB =  914.10095f;
+
 
 static __IO bool __FORCE_REQUEST = false;
 
@@ -35,13 +32,9 @@ static __IO bool __FORCE_REQUEST = false;
 void vTimeoutCallback(TimerHandle_t pxTimer);
 
 unsigned char Application_Init(void)
-{
-	unsigned int PWM_Max_Value = 0;
-	PIDCoff Coff_MOTOR = {0.0, 0.0, 0.0};
-	
+{	
 	TSVN_FOSC_Init();
 	TSVN_Led_Init(ALL);
-	TSVN_ACS712_Init();
 	
 	TSVN_QEI_TIM1_Init(400);
 	TSVN_QEI_TIM3_Init(400);
@@ -50,34 +43,14 @@ unsigned char Application_Init(void)
 	TSVN_CAN_Init();
 	
 	TSVN_USART_Init();
-	FIR_Init();
-	PWM_Max_Value = TSVN_PWM_TIM5_Init(5000);
-	TSVN_PWM_TIM5_Set_Duty(10, MOTOR1_PWM);
-	TSVN_PWM_TIM5_Set_Duty(10, MOTOR2_PWM);
-	TSVN_PWM_TIM5_Set_Duty(10, MOTOR3_PWM);
-	TSVN_PWM_TIM5_Start();
-	DIR_Init();
-	
-	PID_Mem_Create(3);
-	PID_WindUp_Init(MOTOR1, PWM_Max_Value);
-	PID_WindUp_Init(MOTOR2, PWM_Max_Value);
-	PID_WindUp_Init(MOTOR3, PWM_Max_Value);
-	
-	PID_Init(MOTOR1, Coff_MOTOR);
-	PID_Init(MOTOR2, Coff_MOTOR);
-	PID_Init(MOTOR3, Coff_MOTOR);
-	
-	TSVN_TIM6_Init(2000);
 	
 	Pos_Queue = xQueueCreate(200, sizeof(Pos_TypeDef));
 	CanRxQueue = xQueueCreate(200, sizeof(CanRxMsg));
-	Moment_Queue = xQueueCreate(200, sizeof(Moment_Typedef));
 	RxQueue = xQueueCreate(200, sizeof(xData));
 	
 	UART_xCountingSemaphore = xSemaphoreCreateCounting(200, 0);
 	
-	if (Pos_Queue != NULL && CanRxQueue != NULL  && 
-			Moment_Queue != NULL && UART_xCountingSemaphore != NULL && RxQueue != NULL)
+	if (Pos_Queue != NULL && CanRxQueue != NULL  && UART_xCountingSemaphore != NULL && RxQueue != NULL)
 		return SUCCESS;
 	return ERROR;
 }
@@ -151,7 +124,6 @@ void MOMENT_TASK(void *pvParameters)
 			Theta[0] = ((float)TSVN_QEI_TIM1_Value()*0.9)/7.0;
 			Theta[1] = ((float)TSVN_QEI_TIM4_Value()*0.9)/7.0;
 			Theta[2] = ((float)TSVN_QEI_TIM3_Value()*0.9)/7.0;
-			printf("%0.5f\t%0.5f\t%0.5f\n", Theta[0], Theta[1], Theta[2]);	
 			Status = (unsigned char)Delta_CalcForward(Theta[0], Theta[1], Theta[2], &Cordinate[0], &Cordinate[1], &Cordinate[2]);	
 			if (Status == 0)
 			{
@@ -162,14 +134,13 @@ void MOMENT_TASK(void *pvParameters)
 						Phi[0] = -90.0;
 						Phi[1] = 30.0;
 						Phi[2] = 150;
-						F[2] = (float)Cordinate[2]*0.178 + 25.7;
-						//F[2] = (Cordinate[2] >= -170.0)?15:0;
-						//printf("%0.5f\n", F[2]);
+						//F[2] = (float)Cordinate[2]*0.178 + 25.7;
+						F[2] = (Cordinate[2] >= -170.0)?15:0;
 						MomentCalculate(Theta, Phi, Cordinate, F, &Moment);
 						M.Mx = (Moment[0]*1500.0 > 1500.0)?1500.0:Moment[0]*1500.0;
 						M.My = (Moment[1]*1500.0 > 1500.0)?1500.0:Moment[1]*1500.0;
 						M.Mz = (Moment[2]*1500.0 > 1500.0)?1500.0:Moment[2]*1500.0;
-						xQueueSendToBack(Moment_Queue, &M, 1);
+						printf("{M %0.5f %0.5f %0.5f}", M.Mx, M.My, M.Mz);
 				}
 			}
 			TSVN_Led_Toggle(LED_D6);
@@ -182,10 +153,6 @@ void TRANSFER_TASK(void *pvParameters)
 {
 	portBASE_TYPE xStatus;
 	xData ReadValue;
-	char *Cmd;
-	unsigned char i = 0;
-	PIDCoff PID_Coff;
-	float CurentValue_MOTOR[3];
 	while(1)
 	{	
 		xSemaphoreTake(UART_xCountingSemaphore, portMAX_DELAY);
@@ -198,71 +165,8 @@ void TRANSFER_TASK(void *pvParameters)
 					{
 						if (TSVN_USART_Create_Frame(ReadValue.Value) == End)
 						{
-							Cmd = TSVN_Get_Parameters(1, TSVN_USART_Get_Frame());
-							if (!strcmp(Cmd, "PID1"))
-							{
-								Cmd = TSVN_Get_Parameters(2, TSVN_USART_Get_Frame());
-								PID_Coff.Kp = atof(Cmd);
-								Cmd = TSVN_Get_Parameters(3, TSVN_USART_Get_Frame());
-								PID_Coff.Ki = atof(Cmd);
-								Cmd = TSVN_Get_Parameters(4, TSVN_USART_Get_Frame());
-								PID_Coff.Kd = atof(Cmd);
-								PID_Init(MOTOR1, PID_Coff);
-								vTaskSuspendAll();
-								printf("PID MOTOR1: %0.5f\t%0.5f\t%0.5f\n", PID_Coff.Kp, PID_Coff.Ki, PID_Coff.Kd);
-								xTaskResumeAll();
-							}
-							else if (!strcmp(Cmd, "PID2"))
-							{
-								Cmd = TSVN_Get_Parameters(2, TSVN_USART_Get_Frame());
-								PID_Coff.Kp = atof(Cmd);
-								Cmd = TSVN_Get_Parameters(3, TSVN_USART_Get_Frame());
-								PID_Coff.Ki = atof(Cmd);
-								Cmd = TSVN_Get_Parameters(4, TSVN_USART_Get_Frame());
-								PID_Coff.Kd = atof(Cmd);
-								PID_Init(MOTOR2, PID_Coff);
-								vTaskSuspendAll();
-								printf("PID MOTOR2: %0.5f\t%0.5f\t%0.5f\n", PID_Coff.Kp, PID_Coff.Ki, PID_Coff.Kd);
-								xTaskResumeAll();
-							}
-							else if (!strcmp(Cmd, "PID3"))
-							{
-								Cmd = TSVN_Get_Parameters(2, TSVN_USART_Get_Frame());
-								PID_Coff.Kp = atof(Cmd);
-								Cmd = TSVN_Get_Parameters(3, TSVN_USART_Get_Frame());
-								PID_Coff.Ki = atof(Cmd);
-								Cmd = TSVN_Get_Parameters(4, TSVN_USART_Get_Frame());
-								PID_Coff.Kd = atof(Cmd);
-								PID_Init(MOTOR3, PID_Coff);
-								vTaskSuspendAll();
-								printf("PID MOTOR3: %0.5f\t%0.5f\t%0.5f\n", PID_Coff.Kp, PID_Coff.Ki, PID_Coff.Kd);
-								xTaskResumeAll();
-							}
-							else if (!strcmp(Cmd, "AUTO"))
-							{
-								vTaskSuspendAll();
-								CurentValue_MOTOR[MOTOR1] = 0;
-								CurentValue_MOTOR[MOTOR2] = 0;
-								CurentValue_MOTOR[MOTOR3] = 0;
-								for (i = 0; i<50; i++)
-								{
-									CurentValue_MOTOR[MOTOR1] += TSVN_ACS712_Read(ACS_1);
-									CurentValue_MOTOR[MOTOR2] += TSVN_ACS712_Read(ACS_2);
-									CurentValue_MOTOR[MOTOR3] += TSVN_ACS712_Read(ACS_3);
-								}
-								ACS1_CALIB = CurentValue_MOTOR[MOTOR1]/50.0;
-								ACS2_CALIB = CurentValue_MOTOR[MOTOR2]/50.0;
-								ACS3_CALIB = CurentValue_MOTOR[MOTOR3]/50.0;
-								PID_Coff.Kp = 6.0;
-								PID_Coff.Ki = 0.01;
-								PID_Coff.Kd = 0.0001;
-								PID_Init(MOTOR1, PID_Coff);
-								PID_Init(MOTOR2, PID_Coff);
-								PID_Coff.Kp = 4.0;
-								PID_Init(MOTOR3, PID_Coff);
-								printf("Calib: %0.5f\t%0.5f\t%0.5f\n", ACS1_CALIB, ACS2_CALIB, ACS3_CALIB);
-								xTaskResumeAll();
-							}
+							//Cmd = TSVN_Get_Parameters(1, TSVN_USART_Get_Frame());
+							// Xu ly du lieu nhan
 						}		
 					}
 			}
@@ -294,7 +198,7 @@ void POS_TASK(void *pvParameters)
 					CAN_Transmit(CAN1, &CanSendData);
 					isSend = true;
 				}
-				if (Timeout++ >= 5)
+				if (Timeout++ >= 2)
 				{
 					Timeout = 0;
 					isSend = false;
@@ -352,7 +256,6 @@ void POS_TASK(void *pvParameters)
 			vTaskDelay(100);
 	}
 }
-
 void CAN1_RX0_IRQHandler(void)
 {
 	CanRxMsg RxMessage;
@@ -379,55 +282,6 @@ void USART1_IRQHandler(void)
 		xSemaphoreGiveFromISR(UART_xCountingSemaphore, &xHigherPriorityTaskWoken);
 	}
 	portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
-}
-void TIM6_IRQHandler(void)
-{
-	static float CurentValue_MOTOR[3];
-	static portBASE_TYPE xStatus;
-	static Moment_Typedef Moment;
-	static float Moments[3] = {0, 0, 0};
-	static int PWM_MOTOR[3]; 
-	if(TIM_GetITStatus(TIM6, TIM_IT_Update) != RESET)
-	{
-		TIM_ClearITPendingBit(TIM6, TIM_IT_Update);
-		FIR_CollectData(SEN_MOTOR1, TSVN_ACS712_Read(ACS_1));
-		CurentValue_MOTOR[MOTOR1] = AMES_Filter(SEN_MOTOR1) - ACS1_CALIB;
-		FIR_CollectData(SEN_MOTOR2 ,TSVN_ACS712_Read(ACS_2));
-		CurentValue_MOTOR[MOTOR2] = AMES_Filter(SEN_MOTOR2) - ACS2_CALIB;
-		FIR_CollectData(SEN_MOTOR3,TSVN_ACS712_Read(ACS_3));
-		CurentValue_MOTOR[MOTOR3] = AMES_Filter(SEN_MOTOR3) - ACS3_CALIB;
-		PWM_MOTOR[MOTOR1] = PID_Calculate(MOTOR1, Moments[0], CurentValue_MOTOR[MOTOR1]);
-		if (PWM_MOTOR[MOTOR1] < 0)
-				DIR_Change(MOTOR1, RESERVE);
-		else
-				DIR_Change(MOTOR1, FORWARD);
-		TSVN_PWM_TIM5_Set_Duty(abs(PWM_MOTOR[MOTOR1]), MOTOR1_PWM);
-		
-		PWM_MOTOR[MOTOR2] = PID_Calculate(MOTOR2, Moments[1], CurentValue_MOTOR[MOTOR2]);
-		if (PWM_MOTOR[MOTOR2] < 0)
-				DIR_Change(MOTOR2, RESERVE);
-		else
-				DIR_Change(MOTOR2, FORWARD);
-		TSVN_PWM_TIM5_Set_Duty(abs(PWM_MOTOR[MOTOR2]), MOTOR2_PWM);
-		
-		PWM_MOTOR[MOTOR3] = PID_Calculate(MOTOR3, Moments[2], CurentValue_MOTOR[MOTOR3]);
-		if (PWM_MOTOR[MOTOR3] < 0)
-				DIR_Change(MOTOR3, RESERVE);
-		else
-				DIR_Change(MOTOR3, FORWARD);
-		TSVN_PWM_TIM5_Set_Duty(abs(PWM_MOTOR[MOTOR3]), MOTOR3_PWM);
-		
-		if (uxQueueMessagesWaitingFromISR(Moment_Queue) != NULL)
-		{
-			xStatus = xQueueReceiveFromISR(Moment_Queue, &Moment, 0);
-			if (xStatus == pdPASS)
-			{
-				Moments[0] = Moment.Mx;
-				Moments[1] = Moment.My;
-				Moments[2] = Moment.Mz;
-			}
-		}
-	}
 }
 void vTimeoutCallback(TimerHandle_t pxTimer)
 {

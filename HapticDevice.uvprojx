@@ -419,11 +419,6 @@
               <FilePath>.\User\Delta.c</FilePath>
             </File>
             <File>
-              <FileName>Hardware.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\User\Hardware.c</FilePath>
-            </File>
-            <File>
               <FileName>Jacobian.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\User\Jacobian.c</FilePath>
@@ -479,11 +474,6 @@
           <GroupName>BoardSupport</GroupName>
           <Files>
             <File>
-              <FileName>AMES_ACS712.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Drivers\AMES_ACS712.c</FilePath>
-            </File>
-            <File>
               <FileName>AMES_CAN.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Drivers\AMES_CAN.c</FilePath>
@@ -504,11 +494,6 @@
               <FilePath>.\Drivers\AMES_LED.c</FilePath>
             </File>
             <File>
-              <FileName>AMES_PID.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Drivers\AMES_PID.c</FilePath>
-            </File>
-            <File>
               <FileName>AMES_PWM.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Drivers\AMES_PWM.c</FilePath>
@@ -517,11 +502,6 @@
               <FileName>AMES_QEI.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Drivers\AMES_QEI.c</FilePath>
-            </File>
-            <File>
-              <FileName>AMES_TIMER.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Drivers\AMES_TIMER.c</FilePath>
             </File>
             <File>
               <FileName>AMES_USART.c</FileName>
