@@ -144,7 +144,7 @@ void MOMENT_TASK(void *pvParameters)
 				}
 			}
 			TSVN_Led_Toggle(LED_D6);
-			vTaskDelay(150);
+			vTaskDelay(101);
 		#endif
 		
 	}
@@ -253,7 +253,7 @@ void POS_TASK(void *pvParameters)
 				CAN_Transmit(CAN1, &CanSendData);
 			}
 			TSVN_Led_Toggle(LED_D4);
-			vTaskDelay(100);
+			vTaskDelay(50);
 	}
 }
 void CAN1_RX0_IRQHandler(void)
