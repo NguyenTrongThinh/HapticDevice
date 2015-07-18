@@ -484,11 +484,6 @@
               <FilePath>.\Drivers\AMES_CLOCK.c</FilePath>
             </File>
             <File>
-              <FileName>AMES_FIR.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Drivers\AMES_FIR.c</FilePath>
-            </File>
-            <File>
               <FileName>AMES_LED.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Drivers\AMES_LED.c</FilePath>

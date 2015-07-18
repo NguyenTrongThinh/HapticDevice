@@ -12,7 +12,6 @@
 ".\objects\timers.o"
 ".\objects\ames_can.o"
 ".\objects\ames_clock.o"
-".\objects\ames_fir.o"
 ".\objects\ames_led.o"
 ".\objects\ames_pwm.o"
 ".\objects\ames_qei.o"

@@ -1,16 +1,16 @@
 #include <AMES_QEI.h>
 
-static __IO unsigned int TIM1_MAXCNT = 0;
-static __IO long TIM1_Over_Load = 0;
+__IO unsigned int TIM1_MAXCNT = 0;
+__IO signed long TIM1_Over_Load = 0;
 
-static __IO unsigned int TIM2_MAXCNT = 0;
-static __IO long TIM2_Over_Load = 0;
+__IO unsigned int TIM2_MAXCNT = 0;
+__IO signed long TIM2_Over_Load = 0;
 
-static __IO unsigned int TIM3_MAXCNT = 0;
-static __IO long TIM3_Over_Load = 0;
+__IO unsigned int TIM3_MAXCNT = 0;
+__IO signed long TIM3_Over_Load = 0;
 
-static __IO unsigned int TIM4_MAXCNT = 0;
-static __IO long TIM4_Over_Load = 0;
+__IO unsigned int TIM4_MAXCNT = 0;
+__IO signed long TIM4_Over_Load = 0;
 
 /**********************************************************************/
 //QEI Timer 1

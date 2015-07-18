@@ -37,7 +37,7 @@ unsigned char Application_Init(void)
 	TSVN_Led_Init(ALL);
 	
 	TSVN_QEI_TIM1_Init(400);
-	TSVN_QEI_TIM3_Init(400);
+	TSVN_QEI_TIM2_Init(400);
 	TSVN_QEI_TIM4_Init(400);
 	
 	TSVN_CAN_Init();
@@ -61,7 +61,6 @@ void Application_Run(void)
 	if (TimeoutTimer != NULL)
 		xTimerStart(TimeoutTimer, 0);
 	xTaskCreate(POS_TASK, 	"POS", POS_TASK_STACK_SIZE, NULL, POS_TASK_PRIORITY, NULL);	
-	xTaskCreate(TRANSFER_TASK, 	"TRANSFER", TRANSFER_TASK_STACK_SIZE, NULL, TRANSFER_TASK_PRIORITY, NULL);	
 	xTaskCreate(MOMENT_TASK, 	"MOMENT", MOMENT_TASK_STACK_SIZE, NULL, MOMENT_TASK_PRIORITY, NULL);	
 	vTaskStartScheduler();
 }
@@ -73,12 +72,14 @@ void MOMENT_TASK(void *pvParameters)
 	float F[3] = {0.0, 0.0, 0.0};
 	float Phi[3];
 	float Moment[3];
+	TickType_t xLastWakeTime;
 	#ifndef USE_VIRTUAL_WALL
 		portBASE_TYPE xStatus;
 		CanRxMsg CanReceiveData;
 	#endif
 	Moment_Typedef M;
 	unsigned char Status;
+	xLastWakeTime = xTaskGetTickCount();
 	while(1)
 	{
 		#ifndef USE_VIRTUAL_WALL
@@ -123,7 +124,7 @@ void MOMENT_TASK(void *pvParameters)
 		#else
 			Theta[0] = ((float)TSVN_QEI_TIM1_Value()*0.9)/7.0;
 			Theta[1] = ((float)TSVN_QEI_TIM4_Value()*0.9)/7.0;
-			Theta[2] = ((float)TSVN_QEI_TIM3_Value()*0.9)/7.0;
+			Theta[2] = ((float)TSVN_QEI_TIM2_Value()*0.9)/7.0;
 			Status = (unsigned char)Delta_CalcForward(Theta[0], Theta[1], Theta[2], &Cordinate[0], &Cordinate[1], &Cordinate[2]);	
 			if (Status == 0)
 			{
@@ -133,7 +134,7 @@ void MOMENT_TASK(void *pvParameters)
 				{
 						Phi[0] = -90.0;
 						Phi[1] = 30.0;
-						Phi[2] = 150;
+						Phi[2] = 150.0;
 						//F[2] = (float)Cordinate[2]*0.178 + 25.7;
 						F[2] = (Cordinate[2] >= -170.0)?15:0;
 						MomentCalculate(Theta, Phi, Cordinate, F, &Moment);
@@ -144,36 +145,10 @@ void MOMENT_TASK(void *pvParameters)
 				}
 			}
 			TSVN_Led_Toggle(LED_D6);
-			vTaskDelay(101);
+			vTaskDelayUntil( &xLastWakeTime, 20);
 		#endif
-		
 	}
 }
-void TRANSFER_TASK(void *pvParameters)
-{
-	portBASE_TYPE xStatus;
-	xData ReadValue;
-	while(1)
-	{	
-		xSemaphoreTake(UART_xCountingSemaphore, portMAX_DELAY);
-		if (uxQueueMessagesWaiting(RxQueue) != NULL)
-		{
-			xStatus = xQueueReceive(RxQueue, &ReadValue, 1);
-			if (xStatus == pdPASS)
-			{
-				if (ReadValue.ID == USART_ID)
-					{
-						if (TSVN_USART_Create_Frame(ReadValue.Value) == End)
-						{
-							//Cmd = TSVN_Get_Parameters(1, TSVN_USART_Get_Frame());
-							// Xu ly du lieu nhan
-						}		
-					}
-			}
-		}
-	}
-}
-
 void POS_TASK(void *pvParameters)
 {
 	float Theta[3];
@@ -181,13 +156,14 @@ void POS_TASK(void *pvParameters)
 	char Status = 0;
 	static __IO uint8_t Timeout = 0;
 	static __IO bool isSend = false;
+	TickType_t xLastWakeTime;
 	CanTxMsg CanSendData;
 	
 	CanSendData.StdId = CAN_MASTER_STD_ID;
 	CanSendData.IDE = 	CAN_ID_STD;
 	CanSendData.RTR = 	CAN_RTR_DATA;
 	CanSendData.DLC = 	CAN_DATA_LENGTH;
-	
+	xLastWakeTime = xTaskGetTickCount();
 	while(1)
 	{
 			if (__FORCE_REQUEST)
@@ -253,7 +229,7 @@ void POS_TASK(void *pvParameters)
 				CAN_Transmit(CAN1, &CanSendData);
 			}
 			TSVN_Led_Toggle(LED_D4);
-			vTaskDelay(50);
+			vTaskDelayUntil( &xLastWakeTime, 10);
 	}
 }
 void CAN1_RX0_IRQHandler(void)
