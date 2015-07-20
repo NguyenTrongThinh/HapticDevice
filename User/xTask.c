@@ -7,7 +7,7 @@
 #define CAN_DATA_LENGTH		6
 #define TIMOUT_ID					1
 
-#define USE_VIRTUAL_WALL 		
+//#define USE_VIRTUAL_WALL 		
 
 xQueueHandle Pos_Queue;
 xQueueHandle CanRxQueue;
@@ -88,22 +88,16 @@ void MOMENT_TASK(void *pvParameters)
 				xStatus = xQueueReceive(CanRxQueue, &CanReceiveData, 1);
 				if (xStatus == pdPASS)
 				{
-					F[0] = CanReceiveData.Data[1];
-					F[1] = CanReceiveData.Data[3];
 					F[2] = CanReceiveData.Data[5];
-					if (CanReceiveData.Data[0] == 0)
-						F[0] = -F[0];
-					if (CanReceiveData.Data[2] == 0)
-						F[1] = -F[1];
 					if (CanReceiveData.Data[4] == 0)
 						F[2] = -F[2];
-					F[2] += 6;
+					F[2] += 10;
 				}
 				__FORCE_REQUEST = false;
 			}
 			Theta[0] = ((float)TSVN_QEI_TIM1_Value()*0.9)/7.0;
 			Theta[1] = ((float)TSVN_QEI_TIM4_Value()*0.9)/7.0;
-			Theta[2] = ((float)TSVN_QEI_TIM3_Value()*0.9)/7.0;		
+			Theta[2] = ((float)TSVN_QEI_TIM2_Value()*0.9)/7.0;		
 			Status = (unsigned char)Delta_CalcForward(Theta[0], Theta[1], Theta[2], &Cordinate[0], &Cordinate[1], &Cordinate[2]);
 			if (Status == 0)
 			{
@@ -118,9 +112,11 @@ void MOMENT_TASK(void *pvParameters)
 						M.Mx = (Moment[0]*1500.0 > 1500.0)?1500.0:Moment[0]*1500.0;
 						M.My = (Moment[1]*1500.0 > 1500.0)?1500.0:Moment[1]*1500.0;
 						M.Mz = (Moment[2]*1500.0 > 1500.0)?1500.0:Moment[2]*1500.0;
-						xQueueSendToBack(Moment_Queue, &M, 1);
+						printf("{M %0.5f %0.5f %0.5f}", M.Mx, M.My, M.Mz);
 				}
 			}
+			TSVN_Led_Toggle(LED_D6);
+			vTaskDelayUntil( &xLastWakeTime, 20);
 		#else
 			Theta[0] = ((float)TSVN_QEI_TIM1_Value()*0.9)/7.0;
 			Theta[1] = ((float)TSVN_QEI_TIM4_Value()*0.9)/7.0;
@@ -136,7 +132,7 @@ void MOMENT_TASK(void *pvParameters)
 						Phi[1] = 30.0;
 						Phi[2] = 150.0;
 						//F[2] = (float)Cordinate[2]*0.178 + 25.7;
-						F[2] = (Cordinate[2] >= -170.0)?15:0;
+						F[2] = (Cordinate[2] >= -170.0)?15:10;
 						MomentCalculate(Theta, Phi, Cordinate, F, &Moment);
 						M.Mx = (Moment[0]*1500.0 > 1500.0)?1500.0:Moment[0]*1500.0;
 						M.My = (Moment[1]*1500.0 > 1500.0)?1500.0:Moment[1]*1500.0;
@@ -174,7 +170,7 @@ void POS_TASK(void *pvParameters)
 					CAN_Transmit(CAN1, &CanSendData);
 					isSend = true;
 				}
-				if (Timeout++ >= 2)
+				if (Timeout++ >= 5)
 				{
 					Timeout = 0;
 					isSend = false;
@@ -185,7 +181,7 @@ void POS_TASK(void *pvParameters)
 			{
 				Theta[0] = ((float)TSVN_QEI_TIM1_Value()*0.9)/7.0;
 				Theta[1] = ((float)TSVN_QEI_TIM4_Value()*0.9)/7.0;
-				Theta[2] = ((float)TSVN_QEI_TIM3_Value()*0.9)/7.0;		
+				Theta[2] = ((float)TSVN_QEI_TIM2_Value()*0.9)/7.0;		
 				Status = (char)Delta_CalcForward(Theta[0], Theta[1], Theta[2], &Pos.Px, &Pos.Py, &Pos.Pz);
 				if (Status == 0)
 				{
@@ -229,7 +225,7 @@ void POS_TASK(void *pvParameters)
 				CAN_Transmit(CAN1, &CanSendData);
 			}
 			TSVN_Led_Toggle(LED_D4);
-			vTaskDelayUntil( &xLastWakeTime, 10);
+			vTaskDelayUntil( &xLastWakeTime, 100);
 	}
 }
 void CAN1_RX0_IRQHandler(void)
